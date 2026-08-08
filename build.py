@@ -213,12 +213,383 @@ def css(data: dict) -> str:
 """
 
 
+def wezterm(v: dict) -> str:
+    a = v["ansi"]
+    normal = ", ".join(f'"{a[n]}"' for n in ORDER[:8])
+    bright = ", ".join(f'"{a[n]}"' for n in ORDER[8:])
+    return f"""# {v['name']} — https://github.com/grippado/violeeter
+[colors]
+foreground = "{v['foreground']}"
+background = "{v['background']}"
+cursor_bg = "{v['cursor']}"
+cursor_fg = "{v['background']}"
+cursor_border = "{v['cursor']}"
+selection_bg = "{v['selection']}"
+selection_fg = "{v['foreground']}"
+ansi = [{normal}]
+brights = [{bright}]
+"""
+
+
+# --- editors ---------------------------------------------------------------
+#
+# An editor port is the palette plus one mapping: which slot plays which part in
+# code. The mapping lives in `violeeter.json` under `syntax` and is resolved
+# here, so every editor gets the same green for a string. Re-picking colours per
+# editor is how a theme ends up subtly different in each one.
+
+def resolve(v: dict, syntax: dict, role: str) -> str:
+    slot = syntax[role]
+    if slot in v:
+        return v[slot]
+    return v["ansi"][slot]
+
+
+def vscode(v: dict, syntax: dict) -> str:
+    c = lambda role: resolve(v, syntax, role)
+    ui = v["ui"]
+    bg, fg = v["background"], v["foreground"]
+
+    colors = {
+        "editor.background": bg,
+        "editor.foreground": fg,
+        "editorCursor.foreground": v["cursor"],
+        "editor.selectionBackground": v["selection"],
+        "editor.lineHighlightBackground": ui["lineHighlight"],
+        "editorLineNumber.foreground": ui["gutter"],
+        "editorLineNumber.activeForeground": ui["gutterActive"],
+        "editorIndentGuide.background1": ui["border"],
+        "editorWhitespace.foreground": ui["border"],
+        "editorGutter.addedBackground": c("added"),
+        "editorGutter.deletedBackground": c("removed"),
+        "editorGutter.modifiedBackground": c("modified"),
+        "editorError.foreground": c("error"),
+        "editorWarning.foreground": c("warning"),
+        "editorInfo.foreground": c("info"),
+        "activityBar.background": ui["surface"],
+        "activityBar.foreground": fg,
+        "activityBarBadge.background": ui["accent"],
+        "activityBarBadge.foreground": ui["onAccent"],
+        "sideBar.background": ui["surface"],
+        "sideBar.foreground": fg,
+        "sideBar.border": ui["border"],
+        "sideBarSectionHeader.background": ui["surface"],
+        "statusBar.background": ui["surface"],
+        "statusBar.foreground": fg,
+        "statusBar.border": ui["border"],
+        "titleBar.activeBackground": ui["surface"],
+        "titleBar.activeForeground": fg,
+        "tab.activeBackground": bg,
+        "tab.activeForeground": fg,
+        "tab.inactiveBackground": ui["surface"],
+        "tab.border": ui["border"],
+        "tab.activeBorderTop": ui["accent"],
+        "editorGroupHeader.tabsBackground": ui["surface"],
+        "panel.background": ui["surface"],
+        "panel.border": ui["border"],
+        "terminal.background": bg,
+        "terminal.foreground": fg,
+        "terminalCursor.foreground": v["cursor"],
+        "button.background": ui["accent"],
+        "button.foreground": ui["onAccent"],
+        "focusBorder": ui["accent"],
+        "list.activeSelectionBackground": ui["surfaceRaised"],
+        "list.activeSelectionForeground": fg,
+        "list.hoverBackground": ui["surface"],
+        "input.background": ui["surfaceRaised"],
+        "input.border": ui["border"],
+        "dropdown.background": ui["surfaceRaised"],
+        "widget.border": ui["border"],
+        "scrollbarSlider.background": ui["border"],
+    }
+    for i, name in enumerate(ORDER):
+        key = "terminal.ansi" + name[0].upper() + name[1:]
+        colors[key] = v["ansi"][name]
+
+    scopes = [
+        ("Comments", ["comment", "punctuation.definition.comment"], c("comment"), "italic"),
+        ("Strings", ["string", "string.quoted", "punctuation.definition.string"], c("string"), None),
+        ("String escapes", ["constant.character.escape"], c("stringEscape"), None),
+        ("Numbers", ["constant.numeric"], c("number"), None),
+        ("Booleans and constants", ["constant.language", "constant.other"], c("boolean"), None),
+        ("Keywords", ["keyword", "storage.type", "storage.modifier"], c("keyword"), None),
+        ("Control keywords", ["keyword.control"], c("keywordControl"), None),
+        ("Operators", ["keyword.operator"], c("operator"), None),
+        ("Punctuation", ["punctuation", "meta.brace"], c("punctuation"), None),
+        ("Functions", ["entity.name.function", "support.function"], c("function"), None),
+        ("Methods", ["meta.function-call", "variable.function"], c("method"), None),
+        ("Types", ["entity.name.type", "support.type", "storage.type.primitive"], c("type"), None),
+        ("Classes", ["entity.name.class", "support.class"], c("class"), None),
+        ("Namespaces", ["entity.name.namespace", "entity.name.module"], c("namespace"), None),
+        ("Variables", ["variable", "variable.other"], c("variable"), None),
+        ("Parameters", ["variable.parameter"], c("parameter"), None),
+        ("Properties", ["variable.other.property", "support.variable.property", "meta.object-literal.key"], c("property"), None),
+        ("Tags", ["entity.name.tag"], c("tag"), None),
+        ("Attributes", ["entity.other.attribute-name"], c("attribute"), None),
+        ("Regular expressions", ["string.regexp"], c("regexp"), None),
+        ("Invalid", ["invalid"], c("error"), None),
+        ("Diff added", ["markup.inserted"], c("added"), None),
+        ("Diff removed", ["markup.deleted"], c("removed"), None),
+        ("Diff changed", ["markup.changed"], c("modified"), None),
+        ("Markdown heading", ["markup.heading"], c("function"), "bold"),
+        ("Markdown link", ["markup.underline.link"], c("type"), "underline"),
+        ("Markdown emphasis", ["markup.italic"], None, "italic"),
+        ("Markdown strong", ["markup.bold"], None, "bold"),
+    ]
+
+    token_colors = []
+    for name, scope, colour, style in scopes:
+        settings: dict[str, str] = {}
+        if colour:
+            settings["foreground"] = colour
+        if style:
+            settings["fontStyle"] = style
+        token_colors.append({"name": name, "scope": scope, "settings": settings})
+
+    theme = {
+        "name": v["name"],
+        "type": v["appearance"],
+        "semanticHighlighting": True,
+        "colors": colors,
+        "tokenColors": token_colors,
+    }
+    return json.dumps(theme, indent=2) + "\n"
+
+
+def neovim(v: dict, syntax: dict) -> str:
+    """A colorscheme that sets highlight groups directly — no plugin, no deps.
+
+    Drop it in `colors/` and `:colorscheme violeeter-dark` works. Treesitter
+    groups are included and link to the same colours, so a file looks the same
+    whether or not treesitter is attached.
+    """
+    c = lambda role: resolve(v, syntax, role)
+    a, ui = v["ansi"], v["ui"]
+    bg, fg = v["background"], v["foreground"]
+
+    groups = [
+        ("Normal", fg, bg, None),
+        ("NormalFloat", fg, ui["surface"], None),
+        ("FloatBorder", ui["border"], ui["surface"], None),
+        ("Cursor", bg, v["cursor"], None),
+        ("CursorLine", None, ui["lineHighlight"], None),
+        ("CursorLineNr", ui["gutterActive"], None, "bold"),
+        ("LineNr", ui["gutter"], None, None),
+        ("SignColumn", None, bg, None),
+        ("Visual", None, v["selection"], None),
+        ("Search", bg, c("attribute"), None),
+        ("IncSearch", bg, ui["accent"], None),
+        ("StatusLine", fg, ui["surface"], None),
+        ("VertSplit", ui["border"], None, None),
+        ("WinSeparator", ui["border"], None, None),
+        ("Pmenu", fg, ui["surface"], None),
+        ("PmenuSel", ui["onAccent"], ui["accent"], None),
+        ("TabLine", ui["gutter"], ui["surface"], None),
+        ("TabLineSel", fg, bg, None),
+        ("MatchParen", ui["accent"], None, "bold"),
+        ("NonText", ui["border"], None, None),
+        ("Whitespace", ui["border"], None, None),
+        ("Directory", c("type"), None, None),
+        ("Title", c("function"), None, "bold"),
+        # Syntax
+        ("Comment", c("comment"), None, "italic"),
+        ("String", c("string"), None, None),
+        ("Character", c("string"), None, None),
+        ("Number", c("number"), None, None),
+        ("Float", c("number"), None, None),
+        ("Boolean", c("boolean"), None, None),
+        ("Constant", c("constant"), None, None),
+        ("Identifier", c("variable"), None, None),
+        ("Function", c("function"), None, None),
+        ("Statement", c("keyword"), None, None),
+        ("Conditional", c("keywordControl"), None, None),
+        ("Repeat", c("keywordControl"), None, None),
+        ("Keyword", c("keyword"), None, None),
+        ("Operator", c("operator"), None, None),
+        ("PreProc", c("namespace"), None, None),
+        ("Include", c("keywordControl"), None, None),
+        ("Type", c("type"), None, None),
+        ("StorageClass", c("keyword"), None, None),
+        ("Structure", c("class"), None, None),
+        ("Special", c("stringEscape"), None, None),
+        ("Delimiter", c("punctuation"), None, None),
+        ("Todo", bg, c("attribute"), "bold"),
+        ("Error", c("error"), None, None),
+        # Diagnostics
+        ("DiagnosticError", c("error"), None, None),
+        ("DiagnosticWarn", c("warning"), None, None),
+        ("DiagnosticInfo", c("info"), None, None),
+        ("DiagnosticHint", c("hint"), None, None),
+        # Diff
+        ("DiffAdd", c("added"), None, None),
+        ("DiffDelete", c("removed"), None, None),
+        ("DiffChange", c("modified"), None, None),
+        ("DiffText", c("modified"), None, "bold"),
+        # Treesitter
+        ("@comment", c("comment"), None, "italic"),
+        ("@string", c("string"), None, None),
+        ("@string.escape", c("stringEscape"), None, None),
+        ("@string.regexp", c("regexp"), None, None),
+        ("@number", c("number"), None, None),
+        ("@boolean", c("boolean"), None, None),
+        ("@constant", c("constant"), None, None),
+        ("@keyword", c("keyword"), None, None),
+        ("@keyword.control", c("keywordControl"), None, None),
+        ("@operator", c("operator"), None, None),
+        ("@punctuation.delimiter", c("punctuation"), None, None),
+        ("@punctuation.bracket", c("punctuation"), None, None),
+        ("@function", c("function"), None, None),
+        ("@function.call", c("method"), None, None),
+        ("@function.method", c("method"), None, None),
+        ("@type", c("type"), None, None),
+        ("@type.builtin", c("type"), None, None),
+        ("@module", c("namespace"), None, None),
+        ("@variable", c("variable"), None, None),
+        ("@variable.parameter", c("parameter"), None, None),
+        ("@variable.member", c("property"), None, None),
+        ("@property", c("property"), None, None),
+        ("@tag", c("tag"), None, None),
+        ("@tag.attribute", c("attribute"), None, None),
+        ("@markup.heading", c("function"), None, "bold"),
+        ("@markup.link", c("type"), None, "underline"),
+    ]
+
+    lines = [
+        f'-- {v["name"]} — https://github.com/grippado/violeeter',
+        "-- Generated by build.py. Do not edit.",
+        "",
+        "vim.cmd('highlight clear')",
+        "if vim.fn.exists('syntax_on') == 1 then vim.cmd('syntax reset') end",
+        f"vim.o.background = '{v['appearance']}'",
+        f"vim.g.colors_name = 'violeeter-{v['appearance']}'",
+        "",
+        "local hl = vim.api.nvim_set_hl",
+        "",
+    ]
+    for name, fore, back, style in groups:
+        parts = []
+        if fore:
+            parts.append(f"fg = '{fore}'")
+        if back:
+            parts.append(f"bg = '{back}'")
+        if style == "bold":
+            parts.append("bold = true")
+        elif style == "italic":
+            parts.append("italic = true")
+        elif style == "underline":
+            parts.append("underline = true")
+        lines.append(f"hl(0, '{name}', {{ {', '.join(parts)} }})")
+
+    lines.append("")
+    lines.append("-- Terminal colours, so :terminal matches the buffer beside it.")
+    for i, name in enumerate(ORDER):
+        lines.append(f"vim.g.terminal_color_{i} = '{a[name]}'")
+    return "\n".join(lines) + "\n"
+
+
+def zed(v: dict, syntax: dict) -> str:
+    c = lambda role: resolve(v, syntax, role)
+    a, ui = v["ansi"], v["ui"]
+    style = {
+        "background": v["background"],
+        "foreground": v["foreground"],
+        "editor.background": v["background"],
+        "editor.foreground": v["foreground"],
+        "editor.line_number": ui["gutter"],
+        "editor.active_line_number": ui["gutterActive"],
+        "editor.active_line.background": ui["lineHighlight"],
+        "border": ui["border"],
+        "surface.background": ui["surface"],
+        "elevated_surface.background": ui["surfaceRaised"],
+        "element.selected": v["selection"],
+        "text": v["foreground"],
+        "text.muted": ui["gutter"],
+        "terminal.background": v["background"],
+        "terminal.foreground": v["foreground"],
+        "terminal.ansi.black": a["black"], "terminal.ansi.red": a["red"],
+        "terminal.ansi.green": a["green"], "terminal.ansi.yellow": a["yellow"],
+        "terminal.ansi.blue": a["blue"], "terminal.ansi.magenta": a["magenta"],
+        "terminal.ansi.cyan": a["cyan"], "terminal.ansi.white": a["white"],
+        "terminal.ansi.bright_black": a["brightBlack"], "terminal.ansi.bright_red": a["brightRed"],
+        "terminal.ansi.bright_green": a["brightGreen"], "terminal.ansi.bright_yellow": a["brightYellow"],
+        "terminal.ansi.bright_blue": a["brightBlue"], "terminal.ansi.bright_magenta": a["brightMagenta"],
+        "terminal.ansi.bright_cyan": a["brightCyan"], "terminal.ansi.bright_white": a["brightWhite"],
+        "error": c("error"), "warning": c("warning"), "info": c("info"), "hint": c("hint"),
+        "created": c("added"), "deleted": c("removed"), "modified": c("modified"),
+        "syntax": {
+            "comment": {"color": c("comment"), "font_style": "italic"},
+            "string": {"color": c("string")},
+            "string.escape": {"color": c("stringEscape")},
+            "string.regex": {"color": c("regexp")},
+            "number": {"color": c("number")},
+            "boolean": {"color": c("boolean")},
+            "constant": {"color": c("constant")},
+            "keyword": {"color": c("keyword")},
+            "operator": {"color": c("operator")},
+            "punctuation": {"color": c("punctuation")},
+            "function": {"color": c("function")},
+            "function.method": {"color": c("method")},
+            "type": {"color": c("type")},
+            "variable": {"color": c("variable")},
+            "variable.parameter": {"color": c("parameter")},
+            "property": {"color": c("property")},
+            "tag": {"color": c("tag")},
+            "attribute": {"color": c("attribute")},
+        },
+    }
+    return json.dumps({
+        "$schema": "https://zed.dev/schema/themes/v0.2.0.json",
+        "name": "Violeeter",
+        "author": "grippado",
+        "themes": [{"name": v["name"], "appearance": v["appearance"], "style": style}],
+    }, indent=2) + "\n"
+
+
+def tailwind(data: dict) -> str:
+    """Both variants as a Tailwind colour scale, for sites built on the theme."""
+    def block(v: dict) -> str:
+        rows = [f'      background: "{v["background"]}",',
+                f'      foreground: "{v["foreground"]}",',
+                f'      accent: "{v["ui"]["accent"]}",',
+                f'      surface: "{v["ui"]["surface"]}",',
+                f'      border: "{v["ui"]["border"]}",']
+        rows += [f'      {name.lower()}: "{v["ansi"][name]}",' for name in ORDER]
+        return "\n".join(rows)
+
+    return f"""// Violeeter {data['version']} — https://github.com/grippado/violeeter
+// Generated by build.py. Do not edit.
+module.exports = {{
+  theme: {{
+    extend: {{
+      colors: {{
+        violeeter: {{
+          dark: {{
+{block(data['variants']['dark'])}
+          }},
+          light: {{
+{block(data['variants']['light'])}
+          }},
+        }},
+      }},
+    }},
+  }},
+}};
+"""
+
+
 EXPORTS = {
     "itermcolors": iterm,
     "toml": alacritty,
     "conf": kitty,
     "ghostty": ghostty,
     "json": windows_terminal,
+    "wezterm.toml": wezterm,
+}
+
+EDITOR_EXPORTS = {
+    "vscode.json": vscode,
+    "nvim.lua": neovim,
+    "zed.json": zed,
 }
 
 
@@ -255,9 +626,13 @@ def main() -> int:
         return 1 if failures else 0
 
     DIST.mkdir(exist_ok=True)
+    syntax = data["syntax"]
     for key, v in data["variants"].items():
         for ext, render in EXPORTS.items():
             (DIST / f"violeeter-{key}.{ext}").write_text(render(v))
+        for ext, render in EDITOR_EXPORTS.items():
+            (DIST / f"violeeter-{key}.{ext}").write_text(render(v, syntax))
+    (DIST / "violeeter.tailwind.js").write_text(tailwind(data))
     stylesheet = css(data)
     (DIST / "violeeter.css").write_text(stylesheet)
     written = sorted(p.name for p in DIST.iterdir())
@@ -268,7 +643,7 @@ def main() -> int:
     # The project page is served from `docs/`, which cannot reach up into
     # `theme/`. Writing the stylesheet there too is what stops the page that
     # advertises this palette from being painted in a stale copy of it.
-    page = ROOT.parent / "docs"
+    page = ROOT / "docs"
     if page.is_dir():
         (page / "violeeter.css").write_text(stylesheet)
         # The palette itself, so the page can draw its swatches from the source

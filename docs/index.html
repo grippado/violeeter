@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Violeeter — a violet theme for everything</title>
+<meta name="description" content="A violet theme in dark and light, for your editor and your terminal. Every colour verified against WCAG AA, not guessed.">
+<meta property="og:title" content="Violeeter — a violet theme for everything">
+<meta property="og:description" content="Dark and light. Every colour verified against WCAG AA, not guessed.">
+<link rel="stylesheet" href="violeeter.css">
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  body {
+    margin: 0;
+    background: var(--violeeter-bg);
+    color: var(--violeeter-fg);
+    font: 16px/1.6 ui-sans-serif, -apple-system, "Segoe UI", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+  code, pre, .mono { font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+  a { color: var(--violeeter-magenta); }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+  h1, h2, h3 { line-height: 1.2; margin: 0; }
+
+  nav { display: flex; align-items: center; gap: 14px; padding: 22px 0; }
+  .mark { width: 32px; height: 32px; border-radius: 9px; flex: none;
+          background: linear-gradient(145deg, var(--violeeter-magenta), var(--violeeter-blue)); }
+  .wordmark { font-weight: 700; letter-spacing: -0.01em; font-size: 1.1rem; }
+  .nav-links { margin-left: auto; display: flex; gap: 8px; align-items: center; }
+  .ghost {
+    background: none; border: 1px solid var(--violeeter-brightblack);
+    color: var(--violeeter-fg); border-radius: 7px; padding: 6px 12px;
+    font-size: 0.85rem; cursor: pointer; text-decoration: none; font-weight: 500;
+  }
+
+  header { padding: 44px 0 24px; }
+  h1 { font-size: clamp(2.2rem, 7vw, 3.6rem); font-weight: 800; letter-spacing: -0.035em; max-width: 14ch; }
+  .lede { font-size: 1.15rem; margin: 22px 0 0; max-width: 56ch; opacity: 0.85; }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 26px; }
+  .badge {
+    font-size: 0.78rem; padding: 5px 11px; border-radius: 999px;
+    border: 1px solid var(--violeeter-brightblack); opacity: 0.9;
+  }
+
+  /* ---- code preview ---- */
+  .preview { margin: 34px 0 0; border-radius: 12px; overflow: hidden;
+             border: 1px solid var(--violeeter-brightblack); }
+  .preview-bar { display: flex; align-items: center; gap: 7px; padding: 11px 15px;
+                 background: var(--violeeter-selection); }
+  .dot { width: 11px; height: 11px; border-radius: 50%; }
+  .preview-name { margin-left: 8px; font-size: 0.8rem; opacity: 0.7; }
+  .preview-body { padding: 20px 22px; font-size: 0.86rem; line-height: 1.7; overflow-x: auto; }
+  .preview-body pre { margin: 0; }
+  .ln { color: var(--violeeter-brightblack); user-select: none; }
+  .cm { color: var(--violeeter-brightblack); font-style: italic; }
+  .kw { color: var(--violeeter-magenta); }
+  .fn { color: var(--violeeter-blue); }
+  .ty { color: var(--violeeter-cyan); }
+  .st { color: var(--violeeter-green); }
+  .nu { color: var(--violeeter-yellow); }
+  .op { color: var(--violeeter-brightcyan); }
+  .pa { color: var(--violeeter-brightblue); }
+  .pr { color: var(--violeeter-brightcyan); }
+  .pu { color: var(--violeeter-brightblack); }
+  .bo { color: var(--violeeter-brightmagenta); }
+
+  section { padding: 54px 0; border-top: 1px solid var(--violeeter-selection); }
+  h2 { font-size: 1.6rem; letter-spacing: -0.02em; margin-bottom: 10px; }
+  .section-lede { opacity: 0.82; max-width: 62ch; margin: 0 0 26px; }
+
+  .ports { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+  .port {
+    display: block; text-decoration: none; color: inherit;
+    border: 1px solid var(--violeeter-selection); border-radius: 10px;
+    padding: 14px 16px; transition: border-color .15s;
+  }
+  .port:hover { border-color: var(--violeeter-magenta); }
+  .port-name { font-weight: 650; font-size: 0.96rem; }
+  .port-file { font-size: 0.76rem; opacity: 0.6; margin-top: 3px; word-break: break-all; }
+
+  .swatches { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin: 12px 0 0; }
+  .sw { aspect-ratio: 1; border-radius: 6px; position: relative; }
+  .variant { margin-bottom: 26px; }
+  .variant-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
+  .variant-name { font-weight: 650; }
+  .variant-meta { font-size: 0.8rem; opacity: 0.62; }
+
+  table { width: 100%; border-collapse: collapse; font-size: 0.9rem; }
+  th, td { text-align: left; padding: 9px 10px; border-bottom: 1px solid var(--violeeter-selection); }
+  th { font-weight: 600; opacity: 0.7; font-size: 0.8rem; }
+  .scroll { overflow-x: auto; }
+  .pass { color: var(--violeeter-green); font-weight: 600; }
+
+  pre.block { background: var(--violeeter-selection); padding: 14px 16px;
+              border-radius: 9px; overflow-x: auto; font-size: 0.85rem; margin: 0 0 14px; }
+
+  footer { padding: 40px 0 64px; font-size: 0.88rem; opacity: 0.7;
+           border-top: 1px solid var(--violeeter-selection); }
+  footer a { color: inherit; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<nav>
+  <div class="mark"></div>
+  <span class="wordmark">Violeeter</span>
+  <div class="nav-links">
+    <a class="ghost" href="#install">Install</a>
+    <a class="ghost" href="https://github.com/grippado/violeeter">GitHub</a>
+    <button class="ghost" id="toggle" type="button">Light</button>
+  </div>
+</nav>
+
+<header>
+  <h1>A violet theme for everything.</h1>
+  <p class="lede">
+    Dark and light, for your editor and your terminal. Every colour that can
+    carry text is verified against WCAG AA — measured, not guessed, and the
+    build fails if one drops below.
+  </p>
+  <div class="badges">
+    <span class="badge">MIT</span>
+    <span class="badge">Dark + Light</span>
+    <span class="badge">10 ports</span>
+    <span class="badge">AA verified</span>
+  </div>
+
+  <div class="preview">
+    <div class="preview-bar">
+      <span class="dot" style="background:var(--violeeter-red)"></span>
+      <span class="dot" style="background:var(--violeeter-yellow)"></span>
+      <span class="dot" style="background:var(--violeeter-green)"></span>
+      <span class="preview-name">session.rs</span>
+    </div>
+    <div class="preview-body">
+<pre><span class="ln"> 1 </span><span class="cm">/// What a session wrote, and by how much.</span>
+<span class="ln"> 2 </span><span class="kw">pub struct</span> <span class="ty">FileChange</span> <span class="pu">{</span>
+<span class="ln"> 3 </span>    <span class="kw">pub</span> <span class="pr">path</span><span class="pu">:</span> <span class="ty">String</span><span class="pu">,</span>
+<span class="ln"> 4 </span>    <span class="kw">pub</span> <span class="pr">added</span><span class="pu">:</span> <span class="ty">u64</span><span class="pu">,</span>
+<span class="ln"> 5 </span>    <span class="kw">pub</span> <span class="pr">created</span><span class="pu">:</span> <span class="ty">bool</span><span class="pu">,</span>
+<span class="ln"> 6 </span><span class="pu">}</span>
+<span class="ln"> 7 </span>
+<span class="ln"> 8 </span><span class="kw">impl</span> <span class="ty">FileChange</span> <span class="pu">{</span>
+<span class="ln"> 9 </span>    <span class="kw">fn</span> <span class="fn">summarise</span><span class="pu">(</span><span class="op">&amp;</span><span class="kw">self</span><span class="pu">,</span> <span class="pa">limit</span><span class="pu">:</span> <span class="ty">usize</span><span class="pu">)</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="pu">{</span>
+<span class="ln">10 </span>        <span class="kw">let</span> <span class="pr">label</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">self</span><span class="pu">.</span><span class="pr">created</span> <span class="pu">{</span> <span class="st">"new"</span> <span class="pu">}</span> <span class="kw">else</span> <span class="pu">{</span> <span class="st">"edited"</span> <span class="pu">}</span><span class="pu">;</span>
+<span class="ln">11 </span>        <span class="kw">let</span> <span class="pr">shown</span> <span class="op">=</span> <span class="kw">self</span><span class="pu">.</span><span class="pr">added</span><span class="pu">.</span><span class="fn">min</span><span class="pu">(</span><span class="pa">limit</span> <span class="kw">as</span> <span class="ty">u64</span><span class="pu">)</span><span class="pu">;</span>
+<span class="ln">12 </span>        <span class="cm">// Measured, never estimated: the agent wrote the diff.</span>
+<span class="ln">13 </span>        <span class="fn">format!</span><span class="pu">(</span><span class="st">"{} +{}"</span><span class="pu">,</span> <span class="pr">label</span><span class="pu">,</span> <span class="pr">shown</span><span class="pu">)</span>
+<span class="ln">14 </span>    <span class="pu">}</span>
+<span class="ln">15 </span><span class="pu">}</span>
+<span class="ln">16 </span>
+<span class="ln">17 </span><span class="kw">const</span> <span class="pr">TRUNCATE_AT</span><span class="pu">:</span> <span class="ty">usize</span> <span class="op">=</span> <span class="nu">200</span><span class="pu">;</span>
+<span class="ln">18 </span><span class="kw">const</span> <span class="pr">PARTIAL</span><span class="pu">:</span> <span class="ty">bool</span> <span class="op">=</span> <span class="bo">true</span><span class="pu">;</span></pre>
+    </div>
+  </div>
+</header>
+
+<section id="palette">
+  <h2>The palette</h2>
+  <p class="section-lede">
+    Sixteen ANSI slots plus foreground, background and cursor. The dark variant
+    sits on <code>#24203F</code>; the light one is not that flipped, it is each
+    colour re-picked at a luminance that reads on a pale ground.
+  </p>
+
+  <div class="variant">
+    <div class="variant-head">
+      <span class="variant-name">Violeeter Dark</span>
+      <span class="variant-meta mono" id="meta-dark"></span>
+    </div>
+    <div class="swatches" id="sw-dark"></div>
+  </div>
+
+  <div class="variant">
+    <div class="variant-head">
+      <span class="variant-name">Violeeter Light</span>
+      <span class="variant-meta mono" id="meta-light"></span>
+    </div>
+    <div class="swatches" id="sw-light"></div>
+  </div>
+</section>
+
+<section id="contrast">
+  <h2>Contrast, measured</h2>
+  <p class="section-lede">
+    Most themes assert readability. This one measures it: every colour that can
+    carry text is checked against its own background, and
+    <code>python3 build.py --check</code> fails the build if one drops under
+    4.5:1.
+  </p>
+  <div class="scroll">
+    <table>
+      <thead><tr><th>Variant</th><th>Background</th><th>Worst text contrast</th><th>WCAG AA</th></tr></thead>
+      <tbody>
+        <tr><td>Violeeter Dark</td><td class="mono">#24203F</td><td class="mono">4.53</td><td class="pass">pass</td></tr>
+        <tr><td>Violeeter Light</td><td class="mono">#FAF8FE</td><td class="mono">5.06</td><td class="pass">pass</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="section-lede" style="margin-top:22px">
+    Two slots are exempt in the light variant, and have to be:
+    <code>white</code> and <code>brightWhite</code> mean "the palest thing
+    here", which on a pale ground is a surface you fill with rather than
+    something you write with.
+  </p>
+</section>
+
+<section id="install">
+  <h2>Install</h2>
+  <p class="section-lede">
+    Every file is generated from one source, so the green in your editor is the
+    green in your terminal.
+  </p>
+  <div class="ports" id="ports"></div>
+
+  <h3 style="margin:34px 0 10px; font-size:1.05rem">Get the files</h3>
+<pre class="block">git clone https://github.com/grippado/violeeter
+cd violeeter/dist</pre>
+  <p class="section-lede">
+    Or download a single file from
+    <a href="https://github.com/grippado/violeeter/tree/main/dist">dist/</a>.
+  </p>
+</section>
+
+<section id="contributing">
+  <h2>Porting it somewhere else</h2>
+  <p class="section-lede">
+    A port is a function in <code>build.py</code> that takes the palette and
+    returns a string — nothing is written by hand, and no port re-picks a
+    colour. Editor ports also get <code>syntax</code>, the mapping from
+    semantic role to palette slot, which is why a string is the same green
+    everywhere.
+  </p>
+<pre class="block">def my_editor(v, syntax):
+    return f"background = {v['background']}"</pre>
+  <p class="section-lede">
+    Add it to <code>EXPORTS</code>, run <code>python3 build.py</code>, open a
+    pull request.
+  </p>
+</section>
+
+<footer>
+  Violeeter is MIT licensed, by <a href="https://github.com/grippado">grippado</a>.
+  It is the palette <a href="https://grippado.github.io/violeet/">Violeet</a>
+  ships with.
+</footer>
+
+</div>
+
+<script>
+  const SLOTS = ["black","red","green","yellow","blue","magenta","cyan","white",
+                 "brightBlack","brightRed","brightGreen","brightYellow",
+                 "brightBlue","brightMagenta","brightCyan","brightWhite"];
+
+  const PORTS = [
+    ["VS Code",          "violeeter-{v}.vscode.json"],
+    ["Neovim",           "violeeter-{v}.nvim.lua"],
+    ["Zed",              "violeeter-{v}.zed.json"],
+    ["iTerm2",           "violeeter-{v}.itermcolors"],
+    ["Alacritty",        "violeeter-{v}.toml"],
+    ["Kitty",            "violeeter-{v}.conf"],
+    ["Ghostty",          "violeeter-{v}.ghostty"],
+    ["WezTerm",          "violeeter-{v}.wezterm.toml"],
+    ["Windows Terminal", "violeeter-{v}.json"],
+    ["CSS / Tailwind",   "violeeter.css"],
+  ];
+
+  const BASE = "https://github.com/grippado/violeeter/blob/main/dist/";
+
+  function ports() {
+    const host = document.getElementById("ports");
+    for (const [name, file] of PORTS) {
+      const link = document.createElement("a");
+      link.className = "port";
+      link.href = BASE + file.replace("{v}", "dark");
+      link.innerHTML = `<div class="port-name">${name}</div>` +
+                       `<div class="port-file mono">${file}</div>`;
+      host.appendChild(link);
+    }
+  }
+
+  // Swatches come from the palette file itself, so a colour can only appear
+  // here if it is genuinely in the theme.
+  function paint(id, variant) {
+    const host = document.getElementById(id);
+    host.textContent = "";
+    for (const slot of SLOTS) {
+      const value = variant.ansi[slot];
+      const cell = document.createElement("div");
+      cell.className = "sw";
+      cell.style.background = value;
+      cell.title = slot + " " + value;
+      host.appendChild(cell);
+    }
+  }
+
+  ports();
+
+  fetch("violeeter.json")
+    .then(r => r.json())
+    .then(theme => {
+      paint("sw-dark", theme.variants.dark);
+      paint("sw-light", theme.variants.light);
+      document.getElementById("meta-dark").textContent = theme.variants.dark.background;
+      document.getElementById("meta-light").textContent = theme.variants.light.background;
+    })
+    .catch(() => {
+      for (const id of ["sw-dark", "sw-light"]) document.getElementById(id).remove();
+    });
+
+  const root = document.documentElement;
+  const button = document.getElementById("toggle");
+  button.addEventListener("click", () => {
+    const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
+    root.setAttribute("data-theme", next);
+    button.textContent = next === "dark" ? "Light" : "Dark";
+  });
+</script>
+</body>
+</html>
