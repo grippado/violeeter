@@ -8,7 +8,7 @@
     "editorCursor.foreground": "#7C3AED",
     "editor.selectionBackground": "#DED6F5",
     "editor.lineHighlightBackground": "#F1ECFA",
-    "editorLineNumber.foreground": "#8B85A6",
+    "editorLineNumber.foreground": "#71698F",
     "editorLineNumber.activeForeground": "#3B3557",
     "editorIndentGuide.background1": "#DCD5EE",
     "editorWhitespace.foreground": "#DCD5EE",
@@ -60,7 +60,7 @@
     "terminal.ansiBlue": "#2B4ACB",
     "terminal.ansiMagenta": "#7C3AED",
     "terminal.ansiCyan": "#0F6E80",
-    "terminal.ansiWhite": "#C9C3DE",
+    "terminal.ansiWhite": "#55506E",
     "terminal.ansiBrightBlack": "#6B6685",
     "terminal.ansiBrightRed": "#A81E39",
     "terminal.ansiBrightGreen": "#0F6444",
@@ -68,7 +68,7 @@
     "terminal.ansiBrightBlue": "#2039A8",
     "terminal.ansiBrightMagenta": "#6425C9",
     "terminal.ansiBrightCyan": "#0B5A69",
-    "terminal.ansiBrightWhite": "#FFFFFF"
+    "terminal.ansiBrightWhite": "#2A2440"
   },
   "tokenColors": [
     {

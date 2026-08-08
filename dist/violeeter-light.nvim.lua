@@ -14,7 +14,7 @@ hl(0, 'FloatBorder', { fg = '#DCD5EE', bg = '#F2EEFB' })
 hl(0, 'Cursor', { fg = '#FAF8FE', bg = '#7C3AED' })
 hl(0, 'CursorLine', { bg = '#F1ECFA' })
 hl(0, 'CursorLineNr', { fg = '#3B3557', bold = true })
-hl(0, 'LineNr', { fg = '#8B85A6' })
+hl(0, 'LineNr', { fg = '#71698F' })
 hl(0, 'SignColumn', { bg = '#FAF8FE' })
 hl(0, 'Visual', { bg = '#DED6F5' })
 hl(0, 'Search', { fg = '#FAF8FE', bg = '#8A5A0B' })
@@ -24,7 +24,7 @@ hl(0, 'VertSplit', { fg = '#DCD5EE' })
 hl(0, 'WinSeparator', { fg = '#DCD5EE' })
 hl(0, 'Pmenu', { fg = '#2A2440', bg = '#F2EEFB' })
 hl(0, 'PmenuSel', { fg = '#FFFFFF', bg = '#7C3AED' })
-hl(0, 'TabLine', { fg = '#8B85A6', bg = '#F2EEFB' })
+hl(0, 'TabLine', { fg = '#71698F', bg = '#F2EEFB' })
 hl(0, 'TabLineSel', { fg = '#2A2440', bg = '#FAF8FE' })
 hl(0, 'MatchParen', { fg = '#7C3AED', bold = true })
 hl(0, 'NonText', { fg = '#DCD5EE' })
@@ -97,7 +97,7 @@ vim.g.terminal_color_3 = '#8A5A0B'
 vim.g.terminal_color_4 = '#2B4ACB'
 vim.g.terminal_color_5 = '#7C3AED'
 vim.g.terminal_color_6 = '#0F6E80'
-vim.g.terminal_color_7 = '#C9C3DE'
+vim.g.terminal_color_7 = '#55506E'
 vim.g.terminal_color_8 = '#6B6685'
 vim.g.terminal_color_9 = '#A81E39'
 vim.g.terminal_color_10 = '#0F6444'
@@ -105,4 +105,4 @@ vim.g.terminal_color_11 = '#74490A'
 vim.g.terminal_color_12 = '#2039A8'
 vim.g.terminal_color_13 = '#6425C9'
 vim.g.terminal_color_14 = '#0B5A69'
-vim.g.terminal_color_15 = '#FFFFFF'
+vim.g.terminal_color_15 = '#2A2440'
