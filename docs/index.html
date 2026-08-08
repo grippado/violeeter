@@ -55,7 +55,40 @@
   :root[data-theme="light"] .only-dark { display: none; }
   :root[data-theme="light"] .only-light { display: block; }
 
+  /* An inline mark stays inline when it is shown.
+     The rules above switch the two cuts with `display: block`, which is right
+     for the logo and wrong inside a sentence: a block-level `img` in a
+     paragraph takes a line of its own, so the mark before "Violeet" broke away
+     from the word it belongs to and sat alone between two lines of prose.
+     Seen on the page before it was explained. */
+  .inline-mark.only-dark, .inline-mark.only-light { display: none; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .inline-mark.only-dark { display: inline-block; }
+  }
+  :root[data-theme="dark"] .inline-mark.only-dark { display: inline-block; }
+  :root[data-theme="light"] .inline-mark.only-light { display: inline-block; }
+  :root:not([data-theme="dark"]):not([data-theme="light"]) .inline-mark.only-light { display: inline-block; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) .inline-mark.only-light { display: none; }
+  }
+
+
   .wordmark { font-weight: 700; letter-spacing: -0.01em; font-size: 1.1rem; }
+  /* The logo is a link, and inherits rather than turning link-coloured: a
+     wordmark that changes colour because it became clickable has stopped being
+     the wordmark. The mark and the name share one hit area, so the gap between
+     them is clickable too and there is no dead strip in the middle of a target
+     that reads as one thing. */
+  .brand-home {
+    display: flex; align-items: center; gap: 14px;
+    color: inherit; text-decoration: none;
+    border-radius: 8px;
+  }
+  .brand-home:hover { opacity: 0.82; }
+  .brand-home:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 4px;
+  }
   .nav-links { margin-left: auto; display: flex; gap: 8px; align-items: center; }
   .ghost {
     background: none; border: 1px solid var(--violeeter-brightblack);
@@ -178,6 +211,23 @@
     opacity: 0; transition: opacity .12s;
   }
   .sw:hover .sw-actions, .sw:focus-within .sw-actions { opacity: 1; }
+
+  /* On a device with no pointer, the pair is always there.
+     Hiding them until hover is right with a mouse and leaves a touch screen
+     with two invisible buttons: the values cannot be revealed, so they cannot
+     be copied, which is the one thing this grid is for. `hover: none` asks the
+     question that actually matters — whether this device can hover — rather
+     than guessing from the width, which gets a small laptop wrong in one
+     direction and a large tablet wrong in the other.
+     They get their own plate here. Permanently visible text over an arbitrary
+     colour has to carry its own contrast; the text-shadow alone was doing that
+     job for a label that only appeared over a colour you had chosen to point
+     at. */
+  @media (hover: none) {
+    .sw-actions { opacity: 1; }
+    .sw-actions button { background: rgba(18, 16, 32, 0.55); }
+    .sw-sep { opacity: 0.75; }
+  }
   .sw-actions button {
     border: 0; background: none; cursor: pointer;
     color: #fff; font: 700 0.82rem/1 ui-monospace, "SF Mono", Menlo, monospace;
@@ -280,9 +330,15 @@
 <div class="wrap">
 
 <nav>
-  <img class="mark only-dark" src="violeeter-dark.png" alt="Violeeter">
-  <img class="mark only-light" src="violeeter-light.png" alt="Violeeter">
-  <span class="wordmark">Violeeter</span>
+  <!-- The mark and the name are one link home, because that is what a reader
+       who clicks a logo is asking for. `./` rather than `/`: this is a project
+       page under a user site, so `/` is grippado.github.io and not this page
+       at all. -->
+  <a class="brand-home" href="./" aria-label="Violeeter, home">
+    <img class="mark only-dark" src="violeeter-dark.png" alt="Violeeter">
+    <img class="mark only-light" src="violeeter-light.png" alt="Violeeter">
+    <span class="wordmark">Violeeter</span>
+  </a>
   <div class="nav-links">
     <a class="ghost" href="#install">Install</a>
     <a class="ghost with-icon" href="https://github.com/grippado/violeeter"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
@@ -444,12 +500,14 @@ cd violeeter/dist</pre>
     wrong in the thing its author uses all day, which is the only test of a
     theme that cannot be faked.
   </p>
-  <p style="margin-top:20px; display:flex; align-items:center; gap:12px">
-    <img class="only-dark" src="violeet-dark.png" alt="Violeet"
-         style="width:34px; height:34px; flex:none; object-fit:contain">
-    <img class="only-light" src="violeet-light.png" alt="Violeet"
-         style="width:34px; height:34px; flex:none; object-fit:contain">
-    <a class="ghost" href="https://grippado.github.io/violeet/" style="padding:9px 16px">Violeet →</a>
+  <!-- The mark travels inside the link, not beside it.
+       A 34px mark parked next to a bordered button read as two separate things
+       that happen to be adjacent, and it was the third different treatment of
+       one pair — mark plus name — on a single page. The badge above and the
+       sentence before it both put the mark inline at text size, so this does
+       too. One pattern, three places. -->
+  <p style="margin-top:20px">
+    <a class="ghost with-icon" href="https://grippado.github.io/violeet/" style="padding:9px 16px"><img class="inline-mark only-dark" src="violeet-dark.png" alt=""><img class="inline-mark only-light" src="violeet-light.png" alt="">Violeet →</a>
   </p>
 </section>
 
