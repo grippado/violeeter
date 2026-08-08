@@ -124,6 +124,14 @@
      the options are told the colours explicitly. Without this, a light-themed
      system opens a white menu over the dark page. */
   .ui-lang option { background: var(--violeeter-bg); color: var(--violeeter-fg); }
+  /* There is no rule here sizing part of an option's text, and there cannot be.
+     An `<option>` takes text and not flow content, so a wrapper element around
+     the name is dropped by the parser before any CSS runs; and the closed state
+     and the menu are drawn by the OS, which styles the label as one run. A big
+     flag beside a small name in the same option needs a custom dropdown, which
+     is a keyboard, focus and screen-reader rewrite bought with typography.
+     The size is raised on narrow screens instead, where the option is the flag
+     alone and there is no name for it to inflate. See the nav media query. */
 
   /* Inside a badge or a button the word before the mark is its own element now,
      because it is the part that gets translated. Both are `inline-flex`, and a
@@ -289,6 +297,87 @@
     font: 700 0.82rem/1 ui-monospace, monospace; color: #fff;
     text-shadow: 0 1px 3px rgba(0,0,0,0.55);
   }
+  /* Narrow screens: one colour per row.
+     Four columns on a phone leaves each swatch about 85px wide, and at that
+     width nothing this grid exists for survives. The info plate gets half of an
+     85px square — 42px for three lines — so the name, the hex and the rgba are
+     all clipped at once; and the HEXA|RGBA pair, permanently visible on a touch
+     device by the `hover: none` rule above, is wider than the swatch it sits on.
+     A row spends the whole viewport on one colour instead of a quarter of it on
+     four, which is what buys the values back.
+     The breakpoint is width and not `hover: none`, because the question here is
+     how much room the values have. A tablet without a pointer has plenty, and
+     the four-across grid is right for it. */
+  /* The header has to fit a phone, and it did not.
+     One flex row carrying a wordmark, three controls and a spelled-out language
+     name came out wider than a 390px viewport — and a nav that overflows does
+     not overflow alone. It widens the document, so every section below it
+     inherits the horizontal scroll and a strip of dead space down the right.
+     Two changes, both about fitting rather than hiding: the row may wrap, so no
+     item added later can push the document wide again, and on a phone the one
+     control whose glyph needs no gloss drops its word. */
+  @media (max-width: 620px) {
+    nav { flex-wrap: wrap; gap: 10px; padding: 16px 0; }
+    .nav-links { gap: 4px; }
+    /* The flag gets to be a flag here.
+       This is the one width where the option is the flag and nothing else, so
+       raising the size raises the glyph and has no name to drag up with it. At
+       0.85rem an emoji beside a wordmark and a sun icon reads as a smudge; the
+       point of keeping the flag when the name goes is that it can be recognised
+       at a glance, and it has to be big enough for that to be true. */
+    .ui-lang { font-size: 1.45rem; padding: 0 0.35rem; }
+    /* GitHub keeps its mark and loses its name: the octocat is the one logo here
+       that nobody reads a label for. Clipped rather than `display: none`, so it
+       stays in the accessible name of the link. */
+    .nav-links a[href*="github"] span {
+      position: absolute; width: 1px; height: 1px;
+      overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+    }
+    .wrap { padding: 0 16px; }
+
+    .swatches { grid-template-columns: 1fr; gap: 6px; }
+    /* The square goes with the grid: a row is as tall as the text it carries. */
+    .sw {
+      aspect-ratio: auto; min-height: 48px;
+      display: grid; grid-template-columns: 60px minmax(0, 1fr) auto;
+      align-items: stretch;
+    }
+    /* The colour keeps the left edge undivided. It is the thing on display, and
+       a label across it would cost the only unobstructed sample on the row.
+       Both children are pinned to row 1, and the row is not optional:
+       `.sw-actions` comes first in the DOM and sits in column 3, and grid's
+       sparse placement never moves the cursor back to an earlier column — so an
+       info panel that asked only for column 2 was placed on a second row and the
+       swatch grew a floor. Naming the row is what keeps them side by side. */
+    .sw-info {
+      grid-column: 2; grid-row: 1; width: auto; height: 100%;
+      display: grid; grid-template-columns: auto minmax(0, 1fr);
+      column-gap: 8px; align-content: center; align-items: baseline;
+      padding: 6px 0 6px 9px;
+    }
+    .sw-name { grid-column: 1 / -1; }
+    .sw-hex { grid-column: 1; }
+    .sw-rgb { grid-column: 2; }
+    /* Out of the overlay and into the row.
+       Absolute positioning over the top half was how the pair stayed clear of
+       the colour; a row has a third column for it, so it can simply be there.
+       It carries the same plate as the values instead of a background per
+       button, so the two read as one panel and not as two floating chips. */
+    .sw-actions {
+      position: static; inset: auto; grid-column: 3; grid-row: 1;
+      opacity: 1; align-self: stretch;
+      background: rgba(18, 16, 32, 0.62);
+      backdrop-filter: blur(2px);
+      padding: 0 6px 0 2px;
+    }
+    .sw-actions button { background: none; }
+    /* `done::after` is absolute against `.sw`, which is still the positioned
+       ancestor, so the confirmation covers the whole row rather than a corner of
+       it. On a touch screen that is the feedback you can see with a finger still
+       on the glass. */
+    .sw-actions.done::after { background: rgba(18, 16, 32, 0.72); }
+  }
+
   .variant { margin-bottom: 26px; }
   .variant-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
   .variant-name { font-weight: 650; }
@@ -391,11 +480,16 @@
          labelling rule a picker like this has: someone looking for German is
          looking for "Deutsch", and if they could read "German" they would not
          need the control. -->
+    <!-- The flag rides in front of the name so that a narrow screen has
+         something to keep when the name has to go. It is an addition to the
+         name and never a replacement for it on a screen with room: a flag is a
+         country and these are languages, and the two only line up by accident.
+         The name is the label; the flag is the glance. -->
     <select class="ui-lang" id="ui-lang" aria-label="Language">
-      <option value="en">English</option>
-      <option value="pt">Português</option>
-      <option value="es">Español</option>
-      <option value="de">Deutsch</option>
+      <option value="en" data-flag="🇺🇸" data-name="English">🇺🇸 English</option>
+      <option value="pt" data-flag="🇧🇷" data-name="Português">🇧🇷 Português</option>
+      <option value="es" data-flag="🇪🇸" data-name="Español">🇪🇸 Español</option>
+      <option value="de" data-flag="🇩🇪" data-name="Deutsch">🇩🇪 Deutsch</option>
     </select>
     <button class="ghost icon-only with-icon" id="toggle" type="button"
             title="Switch to light" aria-label="Switch to light"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85l1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"/></svg></button>
@@ -1026,6 +1120,30 @@ cd violeeter/dist</pre>
 
     rememberLang(code);
   }
+
+  // On a phone the picker shows the flag alone.
+  //
+  // The names stay in the markup and come back the moment there is room, so this
+  // is a rendering decision and not a loss of content. It has to happen in the
+  // option text because a native select draws its closed state from the selected
+  // option, and there is no way to style that half of the control on its own —
+  // the alternative was a custom dropdown, which is a keyboard and screen-reader
+  // rewrite to save 60px.
+  // Each option keeps its name as an accessible label, and the control keeps
+  // saying what it is, because a flag names a country and these are languages.
+  const NARROW_NAV = window.matchMedia("(max-width: 620px)");
+  function paintLangOptions() {
+    if (!langSelect.isConnected) return;
+    for (const option of langSelect.options) {
+      const { flag, name } = option.dataset;
+      option.textContent = NARROW_NAV.matches ? flag : `${flag} ${name}`;
+      option.setAttribute("aria-label", name);
+    }
+  }
+  paintLangOptions();
+  // Rotating a phone crosses the breakpoint, so the label follows the width
+  // rather than the width at load.
+  NARROW_NAV.addEventListener("change", paintLangOptions);
 
   langSelect.addEventListener("change", () => applyLang(langSelect.value));
 
