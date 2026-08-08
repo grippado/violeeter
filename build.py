@@ -747,7 +747,18 @@ def main() -> int:
         # meant asking the browser to recompute `:root` mid-script, which it
         # does not reliably do — the two variants came out identical.
         (page / "violeeter.json").write_text(SOURCE.read_text())
-        print(f"wrote {page}/violeeter.css and violeeter.json")
+
+        # The exports themselves, so the page can show what is in a file rather
+        # than only naming it. Served from `docs/` because that is the only
+        # directory GitHub Pages publishes; fetching them from raw.github
+        # instead would put a second host between a reader and a colour they
+        # can already see rendered above.
+        page_dist = page / "dist"
+        page_dist.mkdir(exist_ok=True)
+        for item in DIST.iterdir():
+            if item.is_file():
+                (page_dist / item.name).write_bytes(item.read_bytes())
+        print(f"wrote {page}/violeeter.css, violeeter.json and dist/ ({len(list(page_dist.iterdir()))} files)")
     return 0
 
 

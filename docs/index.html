@@ -39,7 +39,7 @@
      wrong in the rest. `vertical-align` sits it on the baseline; without it the
      image aligns to the bottom of the line box and rides low. */
   .inline-mark {
-    height: 1em; width: 1em;
+    height: 1em; width: 1em; flex: none;
     object-fit: contain;
     vertical-align: -0.14em;
     margin-right: 0.28em;
@@ -60,7 +60,11 @@
   .ghost {
     background: none; border: 1px solid var(--violeeter-brightblack);
     color: var(--violeeter-fg); border-radius: 7px; padding: 6px 12px;
-    font-size: 0.85rem; cursor: pointer; text-decoration: none; font-weight: 500;
+    /* `font-family` and `line-height` explicitly: a <button> does not inherit
+       them the way the <a> beside it does, so the toggle rendered a size
+       smaller than its two neighbours. */
+    font: 500 0.85rem/1.4 inherit;
+    cursor: pointer; text-decoration: none; white-space: nowrap;
   }
 
   header { padding: 44px 0 24px; }
@@ -70,6 +74,11 @@
   .badge {
     font-size: 0.78rem; padding: 5px 11px; border-radius: 999px;
     border: 1px solid var(--violeeter-brightblack); opacity: 0.9;
+    /* A pill is one line by definition: at radius 999px a second line turns it
+       into an ellipse. The inline mark inside one of these was enough to wrap
+       it, so the row is held to a single line here rather than hoping the
+       content stays short. */
+    white-space: nowrap; display: inline-flex; align-items: center;
   }
 
   /* ---- code preview ---- */
@@ -94,6 +103,17 @@
   .pu { color: var(--violeeter-brightblack); }
   .bo { color: var(--violeeter-brightmagenta); }
   .dim { color: var(--violeeter-brightblack); }
+
+
+  .lang-tabs { display: flex; gap: 2px; margin-left: 10px; overflow-x: auto; }
+  .lang-tabs button {
+    background: none; border: 0; color: var(--violeeter-fg);
+    font: 500 0.76rem/1.4 inherit; padding: 3px 9px; border-radius: 6px;
+    cursor: pointer; opacity: 0.6; white-space: nowrap;
+  }
+  .lang-tabs button[aria-selected="true"] {
+    background: var(--violeeter-bg); opacity: 1; font-weight: 650;
+  }
 
   section { padding: 54px 0; border-top: 1px solid var(--violeeter-selection); }
   h2 { font-size: 1.6rem; letter-spacing: -0.02em; margin-bottom: 10px; }
@@ -124,6 +144,33 @@
 
   pre.block { background: var(--violeeter-selection); padding: 14px 16px;
               border-radius: 9px; overflow-x: auto; font-size: 0.85rem; margin: 0 0 14px; }
+
+  /* The file viewer. Read-only on purpose: the page is showing you what is in
+     a file so you can take it, not offering to edit it. */
+  .port.is-open { border-color: var(--violeeter-magenta); }
+  .viewer { margin-top: 18px; border: 1px solid var(--violeeter-selection);
+            border-radius: 10px; overflow: hidden; }
+  .viewer-bar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
+                padding: 9px 12px; background: var(--violeeter-selection); }
+  .viewer-name { font-size: 0.82rem; font-weight: 600; }
+  .viewer-actions { margin-left: auto; display: flex; gap: 6px; }
+  .viewer-body { margin: 0; padding: 14px 16px; overflow: auto; max-height: 420px;
+                 font-size: 0.8rem; line-height: 1.6; background: var(--violeeter-bg); }
+  .viewer-body code { white-space: pre; }
+  /* A hex value is shown in the colour it names. Nothing else on this page can
+     be wrong in a way you would not notice; this one is checkable at a glance. */
+  .swatch-inline { display: inline-block; width: 0.72em; height: 0.72em;
+                   border-radius: 2px; margin-right: 0.32em; vertical-align: -0.04em;
+                   outline: 1px solid rgba(128,128,128,0.35); }
+  .tok-comment { color: var(--violeeter-brightblack); font-style: italic; }
+  .tok-key { color: var(--violeeter-cyan); }
+  .tok-string { color: var(--violeeter-green); }
+  .seg { display: inline-flex; border: 1px solid var(--violeeter-brightblack);
+         border-radius: 7px; overflow: hidden; }
+  .seg button { background: none; border: 0; color: var(--violeeter-fg);
+                font: inherit; font-size: 0.78rem; padding: 4px 10px; cursor: pointer; }
+  .seg button[aria-pressed="true"] { background: var(--violeeter-magenta);
+                                     color: var(--violeeter-bg); font-weight: 600; }
 
   footer { padding: 40px 0 64px; font-size: 0.88rem; opacity: 0.7;
            border-top: 1px solid var(--violeeter-selection); }
@@ -164,9 +211,10 @@
       <span class="dot" style="background:var(--violeeter-red)"></span>
       <span class="dot" style="background:var(--violeeter-yellow)"></span>
       <span class="dot" style="background:var(--violeeter-green)"></span>
-      <span class="preview-name">session.rs</span>
+      <span class="preview-name" id="sample-name">session.rs</span>
+      <span class="lang-tabs" id="lang-tabs"></span>
     </div>
-    <div class="preview-body">
+    <div class="preview-body" id="sample-body">
 <pre><span class="ln"> 1 </span><span class="cm">/// What a session wrote, and by how much.</span>
 <span class="ln"> 2 </span><span class="kw">pub struct</span> <span class="ty">FileChange</span> <span class="pu">{</span>
 <span class="ln"> 3 </span>    <span class="kw">pub</span> <span class="pr">path</span><span class="pu">:</span> <span class="ty">String</span><span class="pu">,</span>
@@ -249,13 +297,15 @@
   </p>
   <div class="ports" id="ports"></div>
 
-  <h3 style="margin:34px 0 10px; font-size:1.05rem">Get the files</h3>
+  <div id="viewer-host"></div>
+
+  <h3 style="margin:34px 0 10px; font-size:1.05rem">Or take the whole set</h3>
+  <p class="section-lede">
+    Copying from above needs nothing installed. This is for when you want all of
+    them at once.
+  </p>
 <pre class="block">git clone https://github.com/grippado/violeeter
 cd violeeter/dist</pre>
-  <p class="section-lede">
-    Or download a single file from
-    <a href="https://github.com/grippado/violeeter/tree/main/dist">dist/</a>.
-  </p>
 </section>
 
 <section id="violeet">
@@ -347,17 +397,99 @@ cd violeeter/dist</pre>
     ["CSS / Tailwind",   "violeeter.css"],
   ];
 
-  const BASE = "https://github.com/grippado/violeeter/blob/main/dist/";
+  const RAW = "dist/";
+  const REPO = "https://github.com/grippado/violeeter/blob/main/dist/";
+
+  // Which variant the viewer is showing. Independent of the page's own theme:
+  // reading a dark theme's file on a light page is a normal thing to want.
+  let variant = "dark";
+  let openFile = null;
+
+  function escapeHTML(text) {
+    return text.replace(/[&<>]/g, ch => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[ch]));
+  }
+
+  /// Highlight just enough to read: comments, keys, strings, and every hex
+  /// value shown in the colour it names. Deliberately not a real tokeniser —
+  /// this has to be right across nine formats, and a parser per format is how
+  /// one of them silently renders wrong.
+  function highlight(text) {
+    let html = escapeHTML(text);
+    // Comments first, so a `#RRGGBB` inside one is not swatched twice.
+    html = html.replace(/^([ \t]*(?:#|\/\/|--)[^\n]*)$/gm, '<span class="tok-comment">$1</span>');
+    html = html.replace(/(&quot;[^&"\n]*&quot;)(\s*:)/g, '<span class="tok-key">$1</span>$2');
+    // No `\b` before the `#`: a word boundary needs a word character on one
+    // side, and `#` is not one, so the pattern matched nothing at all and every
+    // hex rendered plain.
+    html = html.replace(/(#[0-9a-fA-F]{6})\b/g,
+      (m, hex) => `<span class="swatch-inline" style="background:${hex}"></span><span class="tok-string">${hex}</span>`);
+    return html;
+  }
+
+  async function show(name, template) {
+    const file = template.replace("{v}", variant);
+    openFile = { name, template };
+    const host = document.getElementById("viewer-host");
+    host.innerHTML = `<div class="viewer">
+        <div class="viewer-bar">
+          <span class="viewer-name">${name}</span>
+          <span class="port-file mono">${file}</span>
+          <span class="viewer-actions">
+            ${template.includes("{v}") ? `<span class="seg">
+              <button type="button" data-variant="dark" aria-pressed="${variant === "dark"}">Dark</button>
+              <button type="button" data-variant="light" aria-pressed="${variant === "light"}">Light</button>
+            </span>` : ""}
+            <button class="ghost" type="button" id="copy">Copy</button>
+            <a class="ghost" href="${REPO}${file}">Raw</a>
+          </span>
+        </div>
+        <pre class="viewer-body"><code>Loading…</code></pre>
+      </div>`;
+
+    const body = host.querySelector("code");
+    try {
+      const response = await fetch(RAW + file);
+      if (!response.ok) throw new Error(response.status);
+      const text = await response.text();
+      body.innerHTML = highlight(text);
+      host.querySelector("#copy").addEventListener("click", async (event) => {
+        await navigator.clipboard.writeText(text);
+        event.target.textContent = "Copied";
+        setTimeout(() => { event.target.textContent = "Copy"; }, 1400);
+      });
+    } catch {
+      // Says which file and offers the link, rather than an empty box: a
+      // viewer that fails silently looks like a file with nothing in it.
+      body.textContent = `Could not load ${file}. Open it on GitHub instead.`;
+    }
+
+    for (const button of host.querySelectorAll("[data-variant]")) {
+      button.addEventListener("click", () => {
+        variant = button.dataset.variant;
+        show(name, template);
+      });
+    }
+    host.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
 
   function ports() {
     const host = document.getElementById("ports");
     for (const [name, file] of PORTS) {
-      const link = document.createElement("a");
-      link.className = "port";
-      link.href = BASE + file.replace("{v}", "dark");
-      link.innerHTML = `<div class="port-name">${name}</div>` +
+      const card = document.createElement("button");
+      card.type = "button";
+      card.className = "port";
+      card.style.textAlign = "left";
+      card.style.font = "inherit";
+      card.style.background = "none";
+      card.style.cursor = "pointer";
+      card.innerHTML = `<div class="port-name">${name}</div>` +
                        `<div class="port-file mono">${file}</div>`;
-      host.appendChild(link);
+      card.addEventListener("click", () => {
+        for (const other of host.children) other.classList.remove("is-open");
+        card.classList.add("is-open");
+        show(name, file);
+      });
+      host.appendChild(card);
     }
   }
 
@@ -375,6 +507,119 @@ cd violeeter/dist</pre>
       host.appendChild(cell);
     }
   }
+
+
+  // Five languages, one theme.
+  //
+  // A reader judges a theme by the language they write, and a sample only in
+  // Rust answers for none of the others: TypeScript leans on strings and
+  // properties, Go on types, JSX on tags and attributes. Each sample is marked
+  // up by hand with the same role classes the palette defines, so what is on
+  // screen is the mapping in `violeeter.json` and not a highlighter's opinion
+  // of it.
+  const SAMPLES = {
+    rust: { name: "session.rs", lines: [
+      ['cm', '/// What a session wrote, and by how much.'],
+      ['', '<span class="kw">pub struct</span> <span class="ty">FileChange</span> <span class="pu">{</span>'],
+      ['', '    <span class="kw">pub</span> <span class="pr">path</span><span class="pu">:</span> <span class="ty">String</span><span class="pu">,</span>'],
+      ['', '    <span class="kw">pub</span> <span class="pr">added</span><span class="pu">:</span> <span class="ty">u64</span><span class="pu">,</span>'],
+      ['', '<span class="pu">}</span>'],
+      ['', ''],
+      ['', '<span class="kw">impl</span> <span class="ty">FileChange</span> <span class="pu">{</span>'],
+      ['', '    <span class="kw">fn</span> <span class="fn">summarise</span><span class="pu">(</span><span class="op">&amp;</span><span class="kw">self</span><span class="pu">,</span> <span class="pa">limit</span><span class="pu">:</span> <span class="ty">usize</span><span class="pu">)</span> <span class="op">-&gt;</span> <span class="ty">String</span> <span class="pu">{</span>'],
+      ['', '        <span class="kw">let</span> <span class="pr">label</span> <span class="op">=</span> <span class="kw">if</span> <span class="kw">self</span><span class="pu">.</span><span class="pr">created</span> <span class="pu">{</span> <span class="st">"new"</span> <span class="pu">}</span> <span class="kw">else</span> <span class="pu">{</span> <span class="st">"edited"</span> <span class="pu">}</span><span class="pu">;</span>'],
+      ['cm', '        // Measured, never estimated: the agent wrote the diff.'],
+      ['', '        <span class="fn">format!</span><span class="pu">(</span><span class="st">"{} +{}"</span><span class="pu">,</span> <span class="pr">label</span><span class="pu">)</span>'],
+      ['', '    <span class="pu">}</span>'],
+      ['', '<span class="pu">}</span>'],
+    ]},
+    typescript: { name: "session.ts", lines: [
+      ['cm', '// What a session wrote, and by how much.'],
+      ['', '<span class="kw">export interface</span> <span class="ty">FileChange</span> <span class="pu">{</span>'],
+      ['', '  <span class="pr">path</span><span class="pu">:</span> <span class="ty">string</span><span class="pu">;</span>'],
+      ['', '  <span class="pr">added</span><span class="pu">:</span> <span class="ty">number</span><span class="pu">;</span>'],
+      ['', '  <span class="pr">created</span><span class="pu">:</span> <span class="ty">boolean</span><span class="pu">;</span>'],
+      ['', '<span class="pu">}</span>'],
+      ['', ''],
+      ['', '<span class="kw">export function</span> <span class="fn">summarise</span><span class="pu">(</span><span class="pa">change</span><span class="pu">:</span> <span class="ty">FileChange</span><span class="pu">)</span><span class="pu">:</span> <span class="ty">string</span> <span class="pu">{</span>'],
+      ['', '  <span class="kw">const</span> <span class="pr">label</span> <span class="op">=</span> <span class="pa">change</span><span class="pu">.</span><span class="pr">created</span> <span class="op">?</span> <span class="st">"new"</span> <span class="op">:</span> <span class="st">"edited"</span><span class="pu">;</span>'],
+      ['', '  <span class="kw">return</span> <span class="st">`${<span class="pr">label</span>} +${<span class="pa">change</span>.<span class="pr">added</span>}`</span><span class="pu">;</span>'],
+      ['', '<span class="pu">}</span>'],
+      ['', ''],
+      ['', '<span class="kw">const</span> <span class="pr">TRUNCATE_AT</span> <span class="op">=</span> <span class="nu">200</span><span class="pu">;</span>'],
+    ]},
+    go: { name: "session.go", lines: [
+      ['cm', '// Package session reports what an agent wrote.'],
+      ['', '<span class="kw">package</span> <span class="ty">session</span>'],
+      ['', ''],
+      ['', '<span class="kw">type</span> <span class="ty">FileChange</span> <span class="kw">struct</span> <span class="pu">{</span>'],
+      ['', '    <span class="pr">Path</span>    <span class="ty">string</span>'],
+      ['', '    <span class="pr">Added</span>   <span class="ty">uint64</span>'],
+      ['', '    <span class="pr">Created</span> <span class="ty">bool</span>'],
+      ['', '<span class="pu">}</span>'],
+      ['', ''],
+      ['', '<span class="kw">func</span> <span class="pu">(</span><span class="pa">c</span> <span class="ty">FileChange</span><span class="pu">)</span> <span class="fn">Summarise</span><span class="pu">()</span> <span class="ty">string</span> <span class="pu">{</span>'],
+      ['', '    <span class="pr">label</span> <span class="op">:=</span> <span class="st">"edited"</span>'],
+      ['', '    <span class="kw">if</span> <span class="pa">c</span><span class="pu">.</span><span class="pr">Created</span> <span class="pu">{</span> <span class="pr">label</span> <span class="op">=</span> <span class="st">"new"</span> <span class="pu">}</span>'],
+      ['', '    <span class="kw">return</span> <span class="fn">fmt.Sprintf</span><span class="pu">(</span><span class="st">"%s +%d"</span><span class="pu">,</span> <span class="pr">label</span><span class="pu">,</span> <span class="pa">c</span><span class="pu">.</span><span class="pr">Added</span><span class="pu">)</span>'],
+      ['', '<span class="pu">}</span>'],
+    ]},
+    react: { name: "FileRow.tsx", lines: [
+      ['cm', '// One file, and a way into it.'],
+      ['', '<span class="kw">export function</span> <span class="fn">FileRow</span><span class="pu">(</span><span class="pu">{</span> <span class="pa">change</span> <span class="pu">}</span><span class="pu">:</span> <span class="ty">Props</span><span class="pu">)</span> <span class="pu">{</span>'],
+      ['', '  <span class="kw">const</span> <span class="pr">tone</span> <span class="op">=</span> <span class="pa">change</span><span class="pu">.</span><span class="pr">created</span> <span class="op">?</span> <span class="st">"added"</span> <span class="op">:</span> <span class="st">"edited"</span><span class="pu">;</span>'],
+      ['', '  <span class="kw">return</span> <span class="pu">(</span>'],
+      ['', '    <span class="pu">&lt;</span><span class="kw">li</span> <span class="nu">className</span><span class="op">=</span><span class="pu">{</span><span class="fn">cx</span><span class="pu">(</span><span class="st">"row"</span><span class="pu">,</span> <span class="pr">tone</span><span class="pu">)}</span><span class="pu">&gt;</span>'],
+      ['', '      <span class="pu">&lt;</span><span class="kw">span</span> <span class="nu">className</span><span class="op">=</span><span class="st">"name"</span><span class="pu">&gt;</span><span class="pu">{</span><span class="pa">change</span><span class="pu">.</span><span class="pr">path</span><span class="pu">}</span><span class="pu">&lt;/</span><span class="kw">span</span><span class="pu">&gt;</span>'],
+      ['', '      <span class="pu">&lt;</span><span class="ty">DiffStat</span> <span class="nu">added</span><span class="op">=</span><span class="pu">{</span><span class="pa">change</span><span class="pu">.</span><span class="pr">added</span><span class="pu">}</span> <span class="pu">/&gt;</span>'],
+      ['', '    <span class="pu">&lt;/</span><span class="kw">li</span><span class="pu">&gt;</span>'],
+      ['', '  <span class="pu">)</span><span class="pu">;</span>'],
+      ['', '<span class="pu">}</span>'],
+    ]},
+    python: { name: "build.py", lines: [
+      ['cm', '"""Generate every export from one palette."""'],
+      ['', '<span class="kw">def</span> <span class="fn">contrast</span><span class="pu">(</span><span class="pa">a</span><span class="pu">:</span> <span class="ty">str</span><span class="pu">,</span> <span class="pa">b</span><span class="pu">:</span> <span class="ty">str</span><span class="pu">)</span> <span class="op">-&gt;</span> <span class="ty">float</span><span class="pu">:</span>'],
+      ['', '    <span class="pr">la</span><span class="pu">,</span> <span class="pr">lb</span> <span class="op">=</span> <span class="fn">luminance</span><span class="pu">(</span><span class="pa">a</span><span class="pu">)</span><span class="pu">,</span> <span class="fn">luminance</span><span class="pu">(</span><span class="pa">b</span><span class="pu">)</span>'],
+      ['', '    <span class="pr">hi</span><span class="pu">,</span> <span class="pr">lo</span> <span class="op">=</span> <span class="fn">max</span><span class="pu">(</span><span class="pr">la</span><span class="pu">,</span> <span class="pr">lb</span><span class="pu">)</span><span class="pu">,</span> <span class="fn">min</span><span class="pu">(</span><span class="pr">la</span><span class="pu">,</span> <span class="pr">lb</span><span class="pu">)</span>'],
+      ['', '    <span class="kw">return</span> <span class="pu">(</span><span class="pr">hi</span> <span class="op">+</span> <span class="nu">0.05</span><span class="pu">)</span> <span class="op">/</span> <span class="pu">(</span><span class="pr">lo</span> <span class="op">+</span> <span class="nu">0.05</span><span class="pu">)</span>'],
+      ['', ''],
+      ['cm', '# Nothing is exempt: colour 7 is text in most terminals.'],
+      ['', '<span class="pr">LIGHT_FILLS</span><span class="pu">:</span> <span class="ty">set</span><span class="pu">[</span><span class="ty">str</span><span class="pu">]</span> <span class="op">=</span> <span class="fn">set</span><span class="pu">()</span>'],
+      ['', '<span class="pr">UI_TEXT</span> <span class="op">=</span> <span class="pu">{</span><span class="st">"gutter"</span><span class="pu">,</span> <span class="st">"gutterActive"</span><span class="pu">}</span>'],
+    ]},
+  };
+
+  const LANGS = [["rust", "Rust"], ["typescript", "TypeScript"], ["go", "Go"],
+                 ["react", "React"], ["python", "Python"]];
+
+  function renderSample(key) {
+    const sample = SAMPLES[key];
+    document.getElementById("sample-name").textContent = sample.name;
+    const width = String(sample.lines.length).length;
+    document.getElementById("sample-body").innerHTML = "<pre>" + sample.lines.map((line, i) => {
+      const number = `<span class="ln">${String(i + 1).padStart(width, " ")} </span>`;
+      const body = line[0] ? `<span class="${line[0]}">${line[1]}</span>` : line[1];
+      return number + body;
+    }).join("\n") + "</pre>";
+    for (const button of document.querySelectorAll("#lang-tabs button")) {
+      button.setAttribute("aria-selected", String(button.dataset.lang === key));
+    }
+  }
+
+  function languageTabs() {
+    const host = document.getElementById("lang-tabs");
+    for (const [key, label] of LANGS) {
+      const button = document.createElement("button");
+      button.type = "button";
+      button.dataset.lang = key;
+      button.textContent = label;
+      button.addEventListener("click", () => renderSample(key));
+      host.appendChild(button);
+    }
+    renderSample("rust");
+  }
+
+  languageTabs();
 
   ports();
 

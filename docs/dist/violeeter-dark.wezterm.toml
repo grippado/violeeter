@@ -1,0 +1,11 @@
+# Violeeter Dark — https://github.com/grippado/violeeter
+[colors]
+foreground = "#D9D6EC"
+background = "#24203F"
+cursor_bg = "#C78BF7"
+cursor_fg = "#24203F"
+cursor_border = "#C78BF7"
+selection_bg = "#3A355E"
+selection_fg = "#D9D6EC"
+ansi = ["#3A355E", "#FF6B81", "#6FE39B", "#F2C97B", "#7FAEFF", "#C78BF7", "#6FE0E0", "#D9D6EC"]
+brights = ["#8B84BC", "#FF93A4", "#96F0B8", "#F7DA9E", "#A6C7FF", "#DCA9FF", "#96EFEF", "#F3F1FF"]
