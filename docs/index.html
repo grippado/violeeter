@@ -526,10 +526,11 @@ cd violeeter/dist</pre>
     return html;
   }
 
-  async function show(name, template) {
+  async function show(name, template, keepBody = false) {
     const file = template.replace("{v}", variant);
     openFile = { name, template };
     const host = document.getElementById("viewer-host");
+    const previous = keepBody ? host.querySelector("code")?.innerHTML : null;
     host.innerHTML = `<div class="viewer">
         <div class="viewer-bar">
           <span class="viewer-name">${name}</span>
@@ -543,10 +544,18 @@ cd violeeter/dist</pre>
             <a class="ghost" href="${REPO}${file}">Raw</a>
           </span>
         </div>
-        <pre class="viewer-body"><code>Loading…</code></pre>
+        <pre class="viewer-body"><code></code></pre>
       </div>`;
 
     const body = host.querySelector("code");
+    if (previous !== null && previous !== undefined) body.innerHTML = previous;
+    // Only says "Loading" when there is nothing to look at. Switching variants
+    // used to blank the pane and rebuild it, so the file flashed away and back
+    // for the length of a fetch from the same origin, which is long enough to
+    // see and short enough to read as a glitch. Keeping the old text until the
+    // new text arrives makes the swap look like what it is: two columns of the
+    // same file, one changing.
+    if (!keepBody) body.textContent = "Loading…";
     try {
       const response = await fetch(RAW + file);
       if (!response.ok) throw new Error(response.status);
@@ -565,8 +574,9 @@ cd violeeter/dist</pre>
 
     for (const button of host.querySelectorAll("[data-variant]")) {
       button.addEventListener("click", () => {
+        if (variant === button.dataset.variant) return;
         variant = button.dataset.variant;
-        show(name, template);
+        show(name, template, true);
       });
     }
     host.scrollIntoView({ behavior: "smooth", block: "nearest" });
