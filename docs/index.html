@@ -32,6 +32,18 @@
      top and bottom off it. The two files also differ by a couple of pixels in
      height, which `contain` absorbs and a fixed box does not. */
   .mark { width: 32px; height: 32px; flex: none; object-fit: contain; }
+
+  /* The mark at text size, for the places the name appears inside a sentence.
+     `1em` rather than a fixed pixel size so it tracks whatever it sits in — a
+     badge, a paragraph, a heading — instead of being right in one of them and
+     wrong in the rest. `vertical-align` sits it on the baseline; without it the
+     image aligns to the bottom of the line box and rides low. */
+  .inline-mark {
+    height: 1em; width: 1em;
+    object-fit: contain;
+    vertical-align: -0.14em;
+    margin-right: 0.28em;
+  }
   .only-dark { display: none; }
   .only-light { display: block; }
   @media (prefers-color-scheme: dark) {
@@ -144,7 +156,7 @@
     <span class="badge">Dark + Light</span>
     <span class="badge">10 ports</span>
     <span class="badge">AA verified</span>
-    <a class="badge" href="#violeet" style="text-decoration:none; color:inherit">Worn by Violeet →</a>
+    <a class="badge" href="#violeet" style="text-decoration:none; color:inherit">Worn by <img class="inline-mark only-dark" src="violeet-dark.png" alt=""><img class="inline-mark only-light" src="violeet-light.png" alt="">Violeet →</a>
   </div>
 
   <div class="preview">
@@ -248,7 +260,7 @@ cd violeeter/dist</pre>
   <h2>Where it came from</h2>
   <p class="section-lede">
     Violeeter was not designed on a colour wheel. It is the palette
-    <strong>Violeet</strong> wears — a macOS terminal for running several coding
+    <img class="inline-mark only-dark" src="violeet-dark.png" alt=""><img class="inline-mark only-light" src="violeet-light.png" alt=""><strong>Violeet</strong> wears — a macOS terminal for running several coding
     agents at once — and it was tuned over months of being stared at for eight
     hours a day. That is the only reason its greys are legible and its blue is
     where it is: both were wrong first, in use.
