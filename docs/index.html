@@ -63,6 +63,7 @@
   .pr { color: var(--violeeter-brightcyan); }
   .pu { color: var(--violeeter-brightblack); }
   .bo { color: var(--violeeter-brightmagenta); }
+  .dim { color: var(--violeeter-brightblack); }
 
   section { padding: 54px 0; border-top: 1px solid var(--violeeter-selection); }
   h2 { font-size: 1.6rem; letter-spacing: -0.02em; margin-bottom: 10px; }
@@ -124,6 +125,7 @@
     <span class="badge">Dark + Light</span>
     <span class="badge">10 ports</span>
     <span class="badge">AA verified</span>
+    <a class="badge" href="#violeet" style="text-decoration:none; color:inherit">Worn by Violeet →</a>
   </div>
 
   <div class="preview">
@@ -220,6 +222,47 @@ cd violeeter/dist</pre>
   <p class="section-lede">
     Or download a single file from
     <a href="https://github.com/grippado/violeeter/tree/main/dist">dist/</a>.
+  </p>
+</section>
+
+<section id="violeet">
+  <h2>Where it came from</h2>
+  <p class="section-lede">
+    Violeeter was not designed on a colour wheel. It is the palette
+    <strong>Violeet</strong> wears — a macOS terminal for running several coding
+    agents at once — and it was tuned over months of being stared at for eight
+    hours a day. That is the only reason its greys are legible and its blue is
+    where it is: both were wrong first, in use.
+  </p>
+
+  <div class="preview" style="margin-bottom:22px">
+    <div class="preview-bar">
+      <span class="dot" style="background:var(--violeeter-red)"></span>
+      <span class="dot" style="background:var(--violeeter-yellow)"></span>
+      <span class="dot" style="background:var(--violeeter-green)"></span>
+      <span class="preview-name">violeet — sessions</span>
+    </div>
+    <div class="preview-body">
+<pre><span style="color:var(--violeeter-yellow)">▌ refactor the transcript reader</span>   <span style="color:var(--violeeter-yellow)">waiting for you</span>
+<span class="dim">  ~/www/personal/violeet</span>
+<span class="dim">  ctx</span> <span class="st">████████</span><span class="dim">░░░░░░░░</span>  38% · 375k/1.0M
+<span class="dim">  Edit</span> crates/violeet-transcript/src/lib.rs
+
+<span class="kw">▌ files panel</span>                        <span class="ty">working</span>
+<span class="dim">  ~/www/personal/violeet</span>
+<span class="dim">  ctx</span> <span class="st">███</span><span class="dim">░░░░░░░░░░░░░</span>  14% · 140k/1.0M
+<span class="dim">  Bash</span> swift test</pre>
+    </div>
+  </div>
+
+  <p class="section-lede">
+    Both pages you can reach from here are painted with this theme, and the
+    terminal above ships with it built in. If a colour were wrong, it would be
+    wrong in the thing its author uses all day — which is the only test of a
+    theme that cannot be faked.
+  </p>
+  <p style="margin-top:20px">
+    <a class="ghost" href="https://grippado.github.io/violeet/" style="padding:9px 16px">Violeet →</a>
   </p>
 </section>
 
