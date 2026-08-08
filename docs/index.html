@@ -3,9 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Violeeter — a violet theme for everything</title>
+<title>Violeeter: a violet theme for everything</title>
 <meta name="description" content="A violet theme in dark and light, for your editor and your terminal. Every colour verified against WCAG AA, not guessed.">
-<meta property="og:title" content="Violeeter — a violet theme for everything">
+<meta property="og:title" content="Violeeter: a violet theme for everything">
 <meta property="og:description" content="Dark and light. Every colour verified against WCAG AA, not guessed.">
 <link rel="stylesheet" href="violeeter.css">
 <style>
@@ -34,8 +34,8 @@
   .mark { width: 32px; height: 32px; flex: none; object-fit: contain; }
 
   /* The mark at text size, for the places the name appears inside a sentence.
-     `1em` rather than a fixed pixel size so it tracks whatever it sits in — a
-     badge, a paragraph, a heading — instead of being right in one of them and
+     `1em` rather than a fixed pixel size so it tracks whatever it sits in (a
+     badge, a paragraph, a heading) instead of being right in one of them and
      wrong in the rest. `vertical-align` sits it on the baseline; without it the
      image aligns to the bottom of the line box and rides low. */
   .inline-mark {
@@ -148,13 +148,13 @@
   <h1>A violet theme for everything.</h1>
   <p class="lede">
     Dark and light, for your editor and your terminal. Every colour that can
-    carry text is verified against WCAG AA — measured, not guessed, and the
+    carry text is verified against WCAG AA: measured, not guessed, and the
     build fails if one drops below.
   </p>
   <div class="badges">
     <span class="badge">MIT</span>
     <span class="badge">Dark + Light</span>
-    <span class="badge">10 ports</span>
+    <span class="badge">11 ports</span>
     <span class="badge">AA verified</span>
     <a class="badge" href="#violeet" style="text-decoration:none; color:inherit">Worn by <img class="inline-mark only-dark" src="violeet-dark.png" alt=""><img class="inline-mark only-light" src="violeet-light.png" alt="">Violeet →</a>
   </div>
@@ -227,15 +227,17 @@
       <thead><tr><th>Variant</th><th>Background</th><th>Worst text contrast</th><th>WCAG AA</th></tr></thead>
       <tbody>
         <tr><td>Violeeter Dark</td><td class="mono">#24203F</td><td class="mono">4.53</td><td class="pass">pass</td></tr>
-        <tr><td>Violeeter Light</td><td class="mono">#FAF8FE</td><td class="mono">5.06</td><td class="pass">pass</td></tr>
+        <tr><td>Violeeter Light</td><td class="mono">#FAF8FE</td><td class="mono">4.84</td><td class="pass">pass</td></tr>
       </tbody>
     </table>
   </div>
   <p class="section-lede" style="margin-top:22px">
-    Two slots are exempt in the light variant, and have to be:
-    <code>white</code> and <code>brightWhite</code> mean "the palest thing
-    here", which on a pale ground is a surface you fill with rather than
-    something you write with.
+    Nothing is exempt, and two colours were changed to keep it that way.
+    <code>white</code> and <code>brightWhite</code> in the light variant used to
+    be, on the reasoning that they mean "the palest thing here" and so are
+    surfaces. That is right about the name and wrong about the use: colour 7 is
+    the default foreground of a large share of terminal programs. Under btop
+    they measured 1.61:1 and the memory labels were not dim, they were absent.
   </p>
 </section>
 
@@ -260,8 +262,8 @@ cd violeeter/dist</pre>
   <h2>Where it came from</h2>
   <p class="section-lede">
     Violeeter was not designed on a colour wheel. It is the palette
-    <img class="inline-mark only-dark" src="violeet-dark.png" alt=""><img class="inline-mark only-light" src="violeet-light.png" alt=""><strong>Violeet</strong> wears — a macOS terminal for running several coding
-    agents at once — and it was tuned over months of being stared at for eight
+    <img class="inline-mark only-dark" src="violeet-dark.png" alt=""><img class="inline-mark only-light" src="violeet-light.png" alt=""><strong>Violeet</strong> wears, a macOS terminal for running several coding
+    agents at once, and it was tuned over months of being stared at for eight
     hours a day. That is the only reason its greys are legible and its blue is
     where it is: both were wrong first, in use.
   </p>
@@ -271,7 +273,7 @@ cd violeeter/dist</pre>
       <span class="dot" style="background:var(--violeeter-red)"></span>
       <span class="dot" style="background:var(--violeeter-yellow)"></span>
       <span class="dot" style="background:var(--violeeter-green)"></span>
-      <span class="preview-name">violeet — sessions</span>
+      <span class="preview-name">violeet · sessions</span>
     </div>
     <div class="preview-body">
 <pre><span style="color:var(--violeeter-yellow)">▌ refactor the transcript reader</span>   <span style="color:var(--violeeter-yellow)">waiting for you</span>
@@ -289,7 +291,7 @@ cd violeeter/dist</pre>
   <p class="section-lede">
     Both pages you can reach from here are painted with this theme, and the
     terminal above ships with it built in. If a colour were wrong, it would be
-    wrong in the thing its author uses all day — which is the only test of a
+    wrong in the thing its author uses all day, which is the only test of a
     theme that cannot be faked.
   </p>
   <p style="margin-top:20px; display:flex; align-items:center; gap:12px">
@@ -305,7 +307,7 @@ cd violeeter/dist</pre>
   <h2>Porting it somewhere else</h2>
   <p class="section-lede">
     A port is a function in <code>build.py</code> that takes the palette and
-    returns a string — nothing is written by hand, and no port re-picks a
+    returns a string. Nothing is written by hand, and no port re-picks a
     colour. Editor ports also get <code>syntax</code>, the mapping from
     semantic role to palette slot, which is why a string is the same green
     everywhere.
@@ -341,6 +343,7 @@ cd violeeter/dist</pre>
     ["Ghostty",          "violeeter-{v}.ghostty"],
     ["WezTerm",          "violeeter-{v}.wezterm.toml"],
     ["Windows Terminal", "violeeter-{v}.json"],
+    ["btop",             "violeeter-{v}.btop.theme"],
     ["CSS / Tailwind",   "violeeter.css"],
   ];
 

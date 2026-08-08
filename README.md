@@ -5,7 +5,7 @@
 **A violet theme for everything.**
 
 Dark and light, for your editor and your terminal.
-Every colour that can carry text is verified against WCAG AA — measured, not guessed.
+Every colour that can carry text is verified against WCAG AA: measured, not guessed.
 
 **[grippado.github.io/violeeter →](https://grippado.github.io/violeeter/)**
 
@@ -36,8 +36,8 @@ cd violeeter/dist
 | **Web** | `violeeter.css` | custom properties, light and dark |
 | **Tailwind** | `violeeter.tailwind.js` | merge into `tailwind.config.js` |
 
-The Neovim colorscheme sets highlight groups directly — no plugin manager, no
-dependency, treesitter groups included — and sets `terminal_color_*` so
+The Neovim colorscheme sets highlight groups directly (no plugin manager, no
+dependency, treesitter groups included) and sets `terminal_color_*` so
 `:terminal` matches the buffer beside it.
 
 ## The palette
@@ -45,7 +45,7 @@ dependency, treesitter groups included — and sets `terminal_color_*` so
 | | Background | Worst text contrast | WCAG AA |
 |---|---|---|---|
 | **Violeeter Dark** | `#24203F` | 4.53 | pass |
-| **Violeeter Light** | `#FAF8FE` | 5.06 | pass |
+| **Violeeter Light** | `#FAF8FE` | 4.84 | pass |
 
 The dark variant is built from one base. Two things follow from a violet ground
 rather than a black one, and neither is optional: **blue has to move**, because
@@ -66,16 +66,22 @@ python3 build.py --check
 Measures all thirty-six values against their own background and exits non-zero
 if any colour that can carry text drops under 4.5:1.
 
-Two slots are exempt, and only in the light variant: `white` and `brightWhite`
-mean "the palest thing here", which on a pale ground is a surface you fill with
-rather than something you write with. Holding them to a text ratio would mean
-darkening white until it stopped being white.
+Nothing is exempt, and two colours were changed to keep it that way.
 
-One colour was changed rather than inherited. `brightBlack` measured **2.07** in
-the terminal this palette grew up in, and that slot is where nearly every
-syntax highlighter puts *comments*. Shipping it meant shipping unreadable
-comments. It is `#8B84BC`, the smallest step that clears the floor with the hue
-intact.
+`white` and `brightWhite` in the light variant used to be exempt, on the
+reasoning that they mean "the palest thing here" and so are surfaces. That is
+right about the name and wrong about the use: colour 7 is the default foreground
+of a large share of terminal programs. Under btop they measured 1.61:1 and the
+memory labels were not dim, they were absent.
+
+`brightBlack` measured **2.07** in the terminal this palette grew up in, and that
+slot is where nearly every syntax highlighter puts *comments*. Shipping it meant
+shipping unreadable comments.
+
+The checker also walks the `ui` block now. It used to stop at the ANSI slots, so
+`gutter`, which is the line number column and therefore text, shipped at 2.91
+while the summary said PASS. A checker that measures the colours you remembered
+to list measures your memory.
 
 ## Porting it somewhere else
 
@@ -93,7 +99,7 @@ mapping), run `python3 build.py`, open a pull request.
 `violeeter.json` is the only file anyone edits. Two things live in it:
 
 - **the palette**, per variant
-- **`syntax`**, the mapping from semantic role to palette slot — `comment →
+- **`syntax`**, the mapping from semantic role to palette slot: `comment →
   brightBlack`, `string → green`, `keyword → magenta`
 
 That mapping is why a string is the same green in VS Code, Neovim and Zed. A
