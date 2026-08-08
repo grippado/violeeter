@@ -129,8 +129,56 @@
   .port-name { font-weight: 650; font-size: 0.96rem; }
   .port-file { font-size: 0.76rem; opacity: 0.6; margin-top: 3px; word-break: break-all; }
 
-  .swatches { display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px; margin: 12px 0 0; }
-  .sw { aspect-ratio: 1; border-radius: 6px; position: relative; }
+  /* Four across, not eight. Sixteen slots in two rows of eight made each
+     swatch too narrow for its own values: the rgba line wrapped and spilled out
+     of the panel. Four columns doubles the width, which is what buys the type
+     size that makes these readable rather than merely present. */
+  .swatches { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin: 12px 0 0; }
+  .sw {
+    aspect-ratio: 1; border-radius: 6px; position: relative; overflow: hidden;
+    display: flex; align-items: flex-end;
+  }
+  /* The values live on the swatch instead of in a tooltip.
+     A tooltip shows one colour at a time, only while hovered, and cannot be
+     selected — so reading two of them side by side, or copying one, meant
+     hovering and retyping. The panel is dark and translucent rather than a
+     solid bar because the colour underneath is the point: it stays visible
+     through its own label. Dark and not light because it has to sit on all
+     thirty-two of these, and the light half of the palette has nothing pale
+     enough to carry white text. */
+  .sw-info {
+    width: 100%; height: 50%;
+    background: rgba(18, 16, 32, 0.62);
+    backdrop-filter: blur(2px);
+    color: #fff;
+    padding: 7px 9px;
+    display: flex; flex-direction: column; justify-content: center; gap: 1px;
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.78rem; line-height: 1.3;
+    /* Selectable: copying is the reason these are on screen. */
+    user-select: text; -webkit-user-select: text;
+  }
+  .sw-name { font-weight: 650; opacity: 0.85; }
+  .sw-hex { letter-spacing: 0.01em; }
+  .sw-rgb { opacity: 0.72; font-size: 0.68rem; }
+  .sw-name, .sw-hex, .sw-rgb {
+    /* One line each, clipped rather than wrapped. A wrapped value is a value
+       with a piece of itself on the next line, which is worse than a value with
+       an end you can see is missing. */
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .sw-copy {
+    position: absolute; inset: 0 0 50% 0;
+    border: 0; background: none; cursor: pointer; padding: 0;
+  }
+  .sw-copy::after {
+    content: "Copied"; position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font: 600 0.8rem/1 ui-monospace, monospace; color: #fff;
+    background: rgba(18, 16, 32, 0.62);
+    opacity: 0; transition: opacity .12s;
+  }
+  .sw-copy.done::after { opacity: 1; }
   .variant { margin-bottom: 26px; }
   .variant-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 6px; }
   .variant-name { font-weight: 650; }
@@ -532,6 +580,11 @@ cd violeeter/dist</pre>
 
   // Swatches come from the palette file itself, so a colour can only appear
   // here if it is genuinely in the theme.
+  function rgbaOf(hex) {
+    const n = parseInt(hex.slice(1), 16);
+    return `rgba(${(n >> 16) & 255}, ${(n >> 8) & 255}, ${n & 255}, 1)`;
+  }
+
   function paint(id, variant) {
     const host = document.getElementById(id);
     host.textContent = "";
@@ -540,7 +593,28 @@ cd violeeter/dist</pre>
       const cell = document.createElement("div");
       cell.className = "sw";
       cell.style.background = value;
-      cell.title = slot + " " + value;
+
+      const info = document.createElement("div");
+      info.className = "sw-info";
+      info.innerHTML = `<span class="sw-name">${slot}</span>` +
+                       `<span class="sw-hex">${value}</span>` +
+                       `<span class="sw-rgb">${rgbaOf(value)}</span>`;
+
+      // The top half copies; the bottom half is text you can select by hand.
+      // One gesture each, so dragging across the hex to select it never fires
+      // a copy of something else.
+      const copy = document.createElement("button");
+      copy.className = "sw-copy";
+      copy.type = "button";
+      copy.title = `Copy ${value}`;
+      copy.setAttribute("aria-label", `Copy ${slot}, ${value}`);
+      copy.addEventListener("click", async () => {
+        await navigator.clipboard.writeText(value);
+        copy.classList.add("done");
+        setTimeout(() => copy.classList.remove("done"), 900);
+      });
+
+      cell.append(copy, info);
       host.appendChild(cell);
     }
   }
