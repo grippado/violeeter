@@ -4,10 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Violeeter: a violet theme for everything</title>
-<meta name="description" content="A violet theme in dark and light, for your editor and your terminal. Every colour verified against WCAG AA, not guessed.">
-<meta property="og:title" content="Violeeter: a violet theme for everything">
-<meta property="og:description" content="Dark and light. Every colour verified against WCAG AA, not guessed.">
+<meta name="description" id="meta-description" content="A violet theme in dark and light, for your editor and your terminal. Every colour verified against WCAG AA, not guessed.">
+<meta property="og:title" id="og-title" content="Violeeter: a violet theme for everything">
+<meta property="og:description" id="og-description" content="Dark and light. Every colour verified against WCAG AA, not guessed.">
 <link rel="stylesheet" href="violeeter.css">
+<!-- The copy, in four languages. In <head> and not deferred: the strings have
+     to exist before the page is translated, and translating happens as soon as
+     the body is parsed. It is one small file, so this costs a parse, not a
+     round-trip. -->
+<script src="i18n.js"></script>
 <style>
   *, *::before, *::after { box-sizing: border-box; }
   body {
@@ -99,6 +104,42 @@
     font: 500 0.85rem/1.4 inherit;
     cursor: pointer; text-decoration: none; white-space: nowrap;
   }
+  /* A native <select>, dressed down to match the ghost buttons beside it.
+     Native because the alternative is rebuilding a listbox, and a hand-rolled
+     one is worse on a phone and worse with a screen reader than the one the
+     platform already ships. It sits next to the theme toggle because language
+     and theme are the same kind of control: a way of asking for this page in a
+     different dress. */
+  .ui-lang {
+    appearance: none; -webkit-appearance: none;
+    background: none; border: 1px solid transparent;
+    color: var(--violeeter-fg); border-radius: 7px;
+    padding: 0 0.5rem; height: 2.1rem;
+    font: 500 0.85rem/1.4 inherit;
+    cursor: pointer;
+    transition: background-color .12s ease;
+  }
+  .ui-lang:hover, .ui-lang:focus-visible { background: var(--violeeter-selection); }
+  /* The dropdown itself is drawn by the OS and does not inherit the page, so
+     the options are told the colours explicitly. Without this, a light-themed
+     system opens a white menu over the dark page. */
+  .ui-lang option { background: var(--violeeter-bg); color: var(--violeeter-fg); }
+
+  /* Inside a badge or a button the word before the mark is its own element now,
+     because it is the part that gets translated. Both are `inline-flex`, and a
+     flex container throws away the whitespace between its items, so the space
+     that used to sit in the markup stopped existing the moment the word was
+     wrapped. The gap has to be a margin, not a character. */
+  .badge .inline-mark, .ghost .inline-mark { margin-left: 0.28em; }
+
+  /* The session rows in "Where it came from" used to be one <pre> where the
+     status was pushed right by counted spaces. That column only lines up for
+     the words it was counted against, and this page now says those words in
+     four languages, so the alignment had to stop being a property of the
+     string. */
+  .sess + .sess { margin-top: 1.15em; }
+  .sess-head { display: flex; justify-content: space-between; gap: 2.5em; }
+  .sess-line { padding-left: 2ch; white-space: pre; }
 
   header { padding: 44px 0 24px; }
   h1 { font-size: clamp(2.2rem, 7vw, 3.6rem); font-weight: 800; letter-spacing: -0.035em; max-width: 14ch; }
@@ -238,8 +279,12 @@
   .sw-sep { color: #fff; opacity: 0.5; font: 700 0.82rem/1 ui-monospace, monospace;
             text-shadow: 0 1px 3px rgba(0,0,0,0.55); }
   .sw-actions.done button, .sw-actions.done .sw-sep { visibility: hidden; }
+  /* The word comes through a custom property because `content` is the one
+     string on this page CSS owns outright, and it has to change with the
+     language like every other. The literal is the fallback for the moment
+     before the script sets it. */
   .sw-actions.done::after {
-    content: "Copied"; position: absolute; inset: 0;
+    content: var(--copied-label, "Copied"); position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
     font: 700 0.82rem/1 ui-monospace, monospace; color: #fff;
     text-shadow: 0 1px 3px rgba(0,0,0,0.55);
@@ -334,32 +379,46 @@
        who clicks a logo is asking for. `./` rather than `/`: this is a project
        page under a user site, so `/` is grippado.github.io and not this page
        at all. -->
-  <a class="brand-home" href="./" aria-label="Violeeter, home">
+  <a class="brand-home" href="./" id="brand-home" aria-label="Violeeter, home">
     <img class="mark only-dark" src="violeeter-dark.png" alt="Violeeter">
     <img class="mark only-light" src="violeeter-light.png" alt="Violeeter">
     <span class="wordmark">Violeeter</span>
   </a>
   <div class="nav-links">
-    <a class="ghost" href="#install">Install</a>
+    <a class="ghost" href="#install" data-i18n="nav.install">Install</a>
     <a class="ghost with-icon" href="https://github.com/grippado/violeeter"><svg class="ic" viewBox="0 0 16 16" aria-hidden="true"><path fill="currentColor" d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27s1.36.09 2 .27c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.012 8.012 0 0 0 16 8c0-4.42-3.58-8-8-8z"/></svg><span>GitHub</span></a>
+    <!-- The names of the languages are in their own languages, which is the one
+         labelling rule a picker like this has: someone looking for German is
+         looking for "Deutsch", and if they could read "German" they would not
+         need the control. -->
+    <select class="ui-lang" id="ui-lang" aria-label="Language">
+      <option value="en">English</option>
+      <option value="pt">Português</option>
+      <option value="es">Español</option>
+      <option value="de">Deutsch</option>
+    </select>
     <button class="ghost icon-only with-icon" id="toggle" type="button"
             title="Switch to light" aria-label="Switch to light"><svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85l1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"/></svg></button>
   </div>
 </nav>
 
 <header>
-  <h1>A violet theme for everything.</h1>
-  <p class="lede">
+  <h1 data-i18n="hero.h1">A violet theme for everything.</h1>
+  <p class="lede" data-i18n="hero.lede">
     Dark and light, for your editor and your terminal. Every colour that can
     carry text is verified against WCAG AA: measured, not guessed, and the
     build fails if one drops below.
   </p>
   <div class="badges">
     <span class="badge">MIT</span>
-    <span class="badge">Dark + Light</span>
-    <span class="badge">11 ports</span>
-    <span class="badge">AA verified</span>
-    <a class="badge" href="#violeet" style="text-decoration:none; color:inherit">Worn by <img class="inline-mark only-dark" src="violeet-dark.png" alt=""><img class="inline-mark only-light" src="violeet-light.png" alt="">Violeet →</a>
+    <span class="badge" data-i18n="badge.variants">Dark + Light</span>
+    <span class="badge" data-i18n="badge.ports">11 ports</span>
+    <span class="badge" data-i18n="badge.aa">AA verified</span>
+    <!-- The gap between the word and the mark is a margin, because a flex
+         container drops the whitespace in the markup. A margin is not a space
+         to a screen reader, though, so the link carries its own label rather
+         than being read as one run-together word. -->
+    <a class="badge" id="badge-worn" href="#violeet" aria-label="Worn by Violeet" style="text-decoration:none; color:inherit"><span data-i18n="badge.worn">Worn by</span><img class="inline-mark only-dark" src="violeet-dark.png" alt=""><img class="inline-mark only-light" src="violeet-light.png" alt="">Violeet →</a>
   </div>
 
   <div class="preview">
@@ -394,8 +453,8 @@
 </header>
 
 <section id="palette">
-  <h2>The palette</h2>
-  <p class="section-lede">
+  <h2 data-i18n="palette.h2">The palette</h2>
+  <p class="section-lede" data-i18n="palette.lede">
     Sixteen ANSI slots plus foreground, background and cursor. The dark variant
     sits on <code>#24203F</code>; the light one is not that flipped, it is each
     colour re-picked at a luminance that reads on a pale ground.
@@ -419,8 +478,8 @@
 </section>
 
 <section id="contrast">
-  <h2>Contrast, measured</h2>
-  <p class="section-lede">
+  <h2 data-i18n="contrast.h2">Contrast, measured</h2>
+  <p class="section-lede" data-i18n="contrast.lede">
     Most themes assert readability. This one measures it: every colour that can
     carry text is checked against its own background, and
     <code>python3 build.py --check</code> fails the build if one drops under
@@ -428,14 +487,14 @@
   </p>
   <div class="scroll">
     <table>
-      <thead><tr><th>Variant</th><th>Background</th><th>Worst text contrast</th><th>WCAG AA</th></tr></thead>
+      <thead><tr><th data-i18n="contrast.th_variant">Variant</th><th data-i18n="contrast.th_background">Background</th><th data-i18n="contrast.th_worst">Worst text contrast</th><th data-i18n="contrast.th_wcag">WCAG AA</th></tr></thead>
       <tbody>
-        <tr><td>Violeeter Dark</td><td class="mono">#24203F</td><td class="mono">4.53</td><td class="pass">pass</td></tr>
-        <tr><td>Violeeter Light</td><td class="mono">#FAF8FE</td><td class="mono">4.84</td><td class="pass">pass</td></tr>
+        <tr><td>Violeeter Dark</td><td class="mono">#24203F</td><td class="mono">4.53</td><td class="pass" data-i18n="contrast.pass">pass</td></tr>
+        <tr><td>Violeeter Light</td><td class="mono">#FAF8FE</td><td class="mono">4.84</td><td class="pass" data-i18n="contrast.pass">pass</td></tr>
       </tbody>
     </table>
   </div>
-  <p class="section-lede" style="margin-top:22px">
+  <p class="section-lede" style="margin-top:22px" data-i18n="contrast.note">
     Nothing is exempt, and two colours were changed to keep it that way.
     <code>white</code> and <code>brightWhite</code> in the light variant used to
     be, on the reasoning that they mean "the palest thing here" and so are
@@ -446,8 +505,8 @@
 </section>
 
 <section id="install">
-  <h2>Install</h2>
-  <p class="section-lede">
+  <h2 data-i18n="install.h2">Install</h2>
+  <p class="section-lede" data-i18n="install.lede">
     Every file is generated from one source, so the green in your editor is the
     green in your terminal.
   </p>
@@ -455,8 +514,8 @@
 
   <div id="viewer-host"></div>
 
-  <h3 style="margin:34px 0 10px; font-size:1.05rem">Or take the whole set</h3>
-  <p class="section-lede">
+  <h3 style="margin:34px 0 10px; font-size:1.05rem" data-i18n="install.whole_h3">Or take the whole set</h3>
+  <p class="section-lede" data-i18n="install.whole_lede">
     Copying from above needs nothing installed. This is for when you want all of
     them at once.
   </p>
@@ -465,13 +524,17 @@ cd violeeter/dist</pre>
 </section>
 
 <section id="violeet">
-  <h2>Where it came from</h2>
+  <h2 data-i18n="came.h2">Where it came from</h2>
+  <!-- The sentence is split at the mark rather than carrying the two <img> tags
+       inside a translated string: a translator should get a sentence, not two
+       file paths they must not touch. Where the name falls differs by language,
+       which is exactly what a pre/post pair allows. -->
   <p class="section-lede">
-    Violeeter was not designed on a colour wheel. It is the palette
-    <img class="inline-mark only-dark" src="violeet-dark.png" alt=""><img class="inline-mark only-light" src="violeet-light.png" alt=""><strong>Violeet</strong> wears, a macOS terminal for running several coding
+    <span data-i18n="came.lede_pre">Violeeter was not designed on a colour wheel. It is the palette</span>
+    <img class="inline-mark only-dark" src="violeet-dark.png" alt=""><img class="inline-mark only-light" src="violeet-light.png" alt=""><strong>Violeet</strong><span data-i18n="came.lede_post"> wears, a macOS terminal for running several coding
     agents at once, and it was tuned over months of being stared at for eight
     hours a day. That is the only reason its greys are legible and its blue is
-    where it is: both were wrong first, in use.
+    where it is: both were wrong first, in use.</span>
   </p>
 
   <div class="preview" style="margin-bottom:22px">
@@ -481,20 +544,30 @@ cd violeeter/dist</pre>
       <span class="dot" style="background:var(--violeeter-green)"></span>
       <span class="preview-name">violeet · sessions</span>
     </div>
-    <div class="preview-body">
-<pre><span style="color:var(--violeeter-yellow)">▌ refactor the transcript reader</span>   <span style="color:var(--violeeter-yellow)">waiting for you</span>
-<span class="dim">  ~/www/personal/violeet</span>
-<span class="dim">  ctx</span> <span class="st">████████</span><span class="dim">░░░░░░░░</span>  38% · 375k/1.0M
-<span class="dim">  Edit</span> crates/violeet-transcript/src/lib.rs
+    <div class="preview-body mono">
+      <div class="sess">
+        <div class="sess-head">
+          <span style="color:var(--violeeter-yellow)">▌ <span data-i18n="came.s1.name">refactor the transcript reader</span></span>
+          <span style="color:var(--violeeter-yellow)" data-i18n="came.s1.status">waiting for you</span>
+        </div>
+        <div class="sess-line dim">~/www/personal/violeet</div>
+        <div class="sess-line"><span class="dim">ctx</span> <span class="st">████████</span><span class="dim">░░░░░░░░</span>  38% · 375k/1.0M</div>
+        <div class="sess-line"><span class="dim">Edit</span> crates/violeet-transcript/src/lib.rs</div>
+      </div>
 
-<span class="kw">▌ files panel</span>                        <span class="ty">working</span>
-<span class="dim">  ~/www/personal/violeet</span>
-<span class="dim">  ctx</span> <span class="st">███</span><span class="dim">░░░░░░░░░░░░░</span>  14% · 140k/1.0M
-<span class="dim">  Bash</span> swift test</pre>
+      <div class="sess">
+        <div class="sess-head">
+          <span class="kw">▌ <span data-i18n="came.s2.name">files panel</span></span>
+          <span class="ty" data-i18n="came.s2.status">working</span>
+        </div>
+        <div class="sess-line dim">~/www/personal/violeet</div>
+        <div class="sess-line"><span class="dim">ctx</span> <span class="st">███</span><span class="dim">░░░░░░░░░░░░░</span>  14% · 140k/1.0M</div>
+        <div class="sess-line"><span class="dim">Bash</span> swift test</div>
+      </div>
     </div>
   </div>
 
-  <p class="section-lede">
+  <p class="section-lede" data-i18n="came.both">
     Both pages you can reach from here are painted with this theme, and the
     terminal above ships with it built in. If a colour were wrong, it would be
     wrong in the thing its author uses all day, which is the only test of a
@@ -512,8 +585,8 @@ cd violeeter/dist</pre>
 </section>
 
 <section id="contributing">
-  <h2>Porting it somewhere else</h2>
-  <p class="section-lede">
+  <h2 data-i18n="porting.h2">Porting it somewhere else</h2>
+  <p class="section-lede" data-i18n="porting.lede">
     A port is a function in <code>build.py</code> that takes the palette and
     returns a string. Nothing is written by hand, and no port re-picks a
     colour. Editor ports also get <code>syntax</code>, the mapping from
@@ -522,13 +595,13 @@ cd violeeter/dist</pre>
   </p>
 <pre class="block">def my_editor(v, syntax):
     return f"background = {v['background']}"</pre>
-  <p class="section-lede">
+  <p class="section-lede" data-i18n="porting.after">
     Add it to <code>EXPORTS</code>, run <code>python3 build.py</code>, open a
     pull request.
   </p>
 </section>
 
-<footer>
+<footer data-i18n="footer">
   Violeeter is MIT licensed, by <a href="https://github.com/grippado">grippado</a>.
   It is the palette <a href="https://grippado.github.io/violeet/">Violeet</a>
   ships with.
@@ -595,11 +668,11 @@ cd violeeter/dist</pre>
           <span class="port-file mono">${file}</span>
           <span class="viewer-actions">
             ${template.includes("{v}") ? `<span class="seg">
-              <button type="button" data-variant="dark" aria-pressed="${variant === "dark"}">Dark</button>
-              <button type="button" data-variant="light" aria-pressed="${variant === "light"}">Light</button>
+              <button type="button" data-variant="dark" aria-pressed="${variant === "dark"}">${t("viewer.dark")}</button>
+              <button type="button" data-variant="light" aria-pressed="${variant === "light"}">${t("viewer.light")}</button>
             </span>` : ""}
-            <button class="ghost" type="button" id="copy">Copy</button>
-            <a class="ghost" href="${REPO}${file}">Raw</a>
+            <button class="ghost" type="button" id="copy">${t("viewer.copy")}</button>
+            <a class="ghost" href="${REPO}${file}">${t("viewer.raw")}</a>
           </span>
         </div>
         <pre class="viewer-body"><code></code></pre>
@@ -613,7 +686,7 @@ cd violeeter/dist</pre>
     // see and short enough to read as a glitch. Keeping the old text until the
     // new text arrives makes the swap look like what it is: two columns of the
     // same file, one changing.
-    if (!keepBody) body.textContent = "Loading…";
+    if (!keepBody) body.textContent = t("viewer.loading");
     try {
       const response = await fetch(RAW + file);
       if (!response.ok) throw new Error(response.status);
@@ -621,13 +694,13 @@ cd violeeter/dist</pre>
       body.innerHTML = highlight(text);
       host.querySelector("#copy").addEventListener("click", async (event) => {
         await navigator.clipboard.writeText(text);
-        event.target.textContent = "Copied";
-        setTimeout(() => { event.target.textContent = "Copy"; }, 1400);
+        event.target.textContent = t("viewer.copied");
+        setTimeout(() => { event.target.textContent = t("viewer.copy"); }, 1400);
       });
     } catch {
       // Says which file and offers the link, rather than an empty box: a
       // viewer that fails silently looks like a file with nothing in it.
-      body.textContent = `Could not load ${file}. Open it on GitHub instead.`;
+      body.textContent = t("viewer.error", { file });
     }
 
     for (const button of host.querySelectorAll("[data-variant]")) {
@@ -693,9 +766,11 @@ cd violeeter/dist</pre>
       const make = (label, text) => {
         const button = document.createElement("button");
         button.type = "button";
+        // HEXA and RGBA stay as they are: they name a notation, not a word.
         button.textContent = label;
-        button.title = `Copy ${text}`;
-        button.setAttribute("aria-label", `Copy ${slot} as ${label}, ${text}`);
+        button.title = t("sw.copy_title", { value: text });
+        button.setAttribute("aria-label",
+          t("sw.copy_aria", { slot, format: label, value: text }));
         button.addEventListener("click", async () => {
           await navigator.clipboard.writeText(text);
           actions.classList.add("done");
@@ -829,9 +904,15 @@ cd violeeter/dist</pre>
 
   ports();
 
+  // Kept so the swatches can be repainted when the language changes: their
+  // titles and aria-labels are sentences, and a grid of thirty-two of them
+  // still labelled in the last language is worse than not translating at all.
+  let THEME = null;
+
   fetch("violeeter.json")
     .then(r => r.json())
     .then(theme => {
+      THEME = theme;
       paint("sw-dark", theme.variants.dark);
       paint("sw-light", theme.variants.light);
       document.getElementById("meta-dark").textContent = theme.variants.dark.background;
@@ -846,18 +927,116 @@ cd violeeter/dist</pre>
   const SUN_ICON = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M12 18a6 6 0 1 1 0-12 6 6 0 0 1 0 12zm0-2a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM11 1h2v3h-2V1zm0 19h2v3h-2v-3zM3.515 4.929l1.414-1.414L7.05 5.636 5.636 7.05 3.515 4.93zM16.95 18.364l1.414-1.414 2.121 2.121-1.414 1.414-2.121-2.121zm2.121-14.85l1.414 1.415-2.121 2.121-1.414-1.414 2.121-2.121zM5.636 16.95l1.414 1.414-2.121 2.121-1.414-1.414 2.121-2.121zM23 11v2h-3v-2h3zM4 11v2H1v-2h3z"/></svg>`;
   const MOON_ICON = `<svg class="ic" viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M10 6a8 8 0 0 0 11.955 6.956C21.474 18.03 17.2 22 12 22 6.477 22 2 17.523 2 12c0-5.2 3.97-9.474 9.044-9.955A7.963 7.963 0 0 0 10 6zm-6 6a8 8 0 0 0 8 8 8.006 8.006 0 0 0 6.957-4.045c-.316.03-.636.045-.957.045-5.523 0-10-4.477-10-10 0-.321.015-.641.045-.957A8.006 8.006 0 0 0 4 12z"/></svg>`;
 
-  function paintToggle(next) {
-    button.innerHTML = next === "dark" ? MOON_ICON : SUN_ICON;
-    const label = next === "dark" ? "Switch to dark" : "Switch to light";
-    button.title = label;
-    button.setAttribute("aria-label", label);
+  // The toggle offers the theme you are not wearing, so it shows the sun while
+  // the page is dark. Its label is a sentence like any other on the page and
+  // comes out of the same dictionary.
+  function paintToggle() {
+    const isDark = root.getAttribute("data-theme") === "dark";
+    button.innerHTML = isDark ? SUN_ICON : MOON_ICON;
+    const label = t(isDark ? "theme.to_light" : "theme.to_dark");
+    if (label) {
+      button.title = label;
+      button.setAttribute("aria-label", label);
+    }
   }
 
   button.addEventListener("click", () => {
-    const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
-    root.setAttribute("data-theme", next);
-    paintToggle(next === "dark" ? "light" : "dark");
+    root.setAttribute("data-theme",
+      root.getAttribute("data-theme") === "dark" ? "light" : "dark");
+    paintToggle();
   });
+
+  // ---- language ----
+  //
+  // English is already in the markup, so this only ever overwrites. That order
+  // matters: a reader with JavaScript off, and a crawler, still get the whole
+  // page, and the fallback for a missing key is the English that is already
+  // sitting there rather than an empty element.
+  //
+  // Named UI_LANGS, not LANGS: this file already has a LANGS, and it is the
+  // list of programming languages in the sample tabs. Two different things
+  // called "language" on one page is reason to be explicit, not clever.
+  const UI_LANGS = window.VIOLEETER_I18N || { en: {} };
+  const langSelect = document.getElementById("ui-lang");
+  // A page whose dictionary failed to load is an English page with a picker
+  // that would lie, so the picker goes rather than sitting there doing nothing.
+  if (!window.VIOLEETER_I18N) langSelect.remove();
+  const LANG_KEY = "violeeter-lang";
+  let uiLang = "en";
+
+  // The lookup the whole script goes through, placeholders and all. Returns the
+  // key itself when a string is missing, which is ugly on screen and therefore
+  // gets noticed, unlike an empty string.
+  function t(key, values) {
+    const string = (UI_LANGS[uiLang] || UI_LANGS.en || {})[key];
+    if (string === undefined) return key;
+    if (!values) return string;
+    return string.replace(/\{(\w+)\}/g, (whole, name) =>
+      name in values ? values[name] : whole);
+  }
+
+  // localStorage throws rather than no-ops in a locked-down Safari, and a page
+  // that cannot remember a preference should still honour the click.
+  function rememberLang(code) {
+    try { localStorage.setItem(LANG_KEY, code); } catch (e) { /* not fatal */ }
+  }
+  function recallLang() {
+    try { return localStorage.getItem(LANG_KEY); } catch (e) { return null; }
+  }
+
+  function applyLang(code) {
+    if (!UI_LANGS[code]) code = "en";
+    uiLang = code;
+
+    // `innerHTML` rather than `textContent`: several of these sentences carry a
+    // link or a `<code>`, and splitting them into fragments to avoid markup
+    // would hand translators a jigsaw instead of a sentence. The only thing
+    // that ever writes here is `i18n.js`, which the page ships itself.
+    for (const el of document.querySelectorAll("[data-i18n]")) {
+      const value = (UI_LANGS[code] || {})[el.dataset.i18n];
+      if (value !== undefined) el.innerHTML = value;
+    }
+
+    // The parts of the page that are not elements: what the tab says, what a
+    // link preview quotes, and what the document declares itself to be. `lang`
+    // is not decoration — it is what a screen reader consults before choosing
+    // how to pronounce any of this.
+    root.setAttribute("lang", code);
+    document.title = t("meta.title");
+    document.getElementById("meta-description").setAttribute("content", t("meta.description"));
+    document.getElementById("og-title").setAttribute("content", t("meta.title"));
+    document.getElementById("og-description").setAttribute("content", t("og.description"));
+    document.getElementById("brand-home").setAttribute("aria-label", t("brand.home"));
+    document.getElementById("badge-worn").setAttribute("aria-label", t("badge.worn") + " Violeet");
+    langSelect.setAttribute("aria-label", t("lang.label"));
+    // The one string CSS owns. Quoted, because `content` takes a string.
+    root.style.setProperty("--copied-label", JSON.stringify(t("sw.copied")));
+
+    paintToggle();
+
+    // Everything the script drew rather than the markup. The swatches carry a
+    // label per copy button, and the viewer's whole bar is generated, so both
+    // have to be built again in the new language. The viewer keeps its body,
+    // which means the file does not flash away for a re-fetch it does not need.
+    if (THEME) {
+      paint("sw-dark", THEME.variants.dark);
+      paint("sw-light", THEME.variants.light);
+    }
+    if (openFile) show(openFile.name, openFile.template, true);
+
+    rememberLang(code);
+  }
+
+  langSelect.addEventListener("change", () => applyLang(langSelect.value));
+
+  // English on a first visit, whatever was chosen on a return one. Deliberately
+  // not `navigator.language`: this page is indexed in English, and guessing
+  // would serve a visitor something other than the result they clicked.
+  const storedLang = recallLang();
+  if (storedLang && UI_LANGS[storedLang] && storedLang !== "en") {
+    langSelect.value = storedLang;
+    applyLang(storedLang);
+  }
 </script>
 </body>
 </html>
