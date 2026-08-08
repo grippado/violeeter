@@ -26,7 +26,12 @@
   /* The real mark, in two cuts, switched by the same rules that switch the
      colours. A CSS gradient standing in for the icon is a second copy that
      drifts the first time the artwork changes. */
-  .mark { width: 32px; height: 32px; border-radius: 9px; flex: none; }
+  /* No border-radius and no cropping: this artwork draws its own rounded
+     frame right at the edge of the canvas, so rounding the element again
+     shaves off the frame itself, and any fit other than `contain` cuts the
+     top and bottom off it. The two files also differ by a couple of pixels in
+     height, which `contain` absorbs and a fixed box does not. */
+  .mark { width: 32px; height: 32px; flex: none; object-fit: contain; }
   .only-dark { display: none; }
   .only-light { display: block; }
   @media (prefers-color-scheme: dark) {
@@ -277,9 +282,9 @@ cd violeeter/dist</pre>
   </p>
   <p style="margin-top:20px; display:flex; align-items:center; gap:12px">
     <img class="only-dark" src="violeet-dark.png" alt="Violeet"
-         style="width:34px; height:34px; border-radius:9px; flex:none">
+         style="width:34px; height:34px; flex:none; object-fit:contain">
     <img class="only-light" src="violeet-light.png" alt="Violeet"
-         style="width:34px; height:34px; border-radius:9px; flex:none">
+         style="width:34px; height:34px; flex:none; object-fit:contain">
     <a class="ghost" href="https://grippado.github.io/violeet/" style="padding:9px 16px">Violeet →</a>
   </p>
 </section>
