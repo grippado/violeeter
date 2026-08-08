@@ -124,6 +124,14 @@
      the options are told the colours explicitly. Without this, a light-themed
      system opens a white menu over the dark page. */
   .ui-lang option { background: var(--violeeter-bg); color: var(--violeeter-fg); }
+  /* There is no rule here sizing part of an option's text, and there cannot be.
+     An `<option>` takes text and not flow content, so a wrapper element around
+     the name is dropped by the parser before any CSS runs; and the closed state
+     and the menu are drawn by the OS, which styles the label as one run. A big
+     flag beside a small name in the same option needs a custom dropdown, which
+     is a keyboard, focus and screen-reader rewrite bought with typography.
+     The size is raised on narrow screens instead, where the option is the flag
+     alone and there is no name for it to inflate. See the nav media query. */
 
   /* Inside a badge or a button the word before the mark is its own element now,
      because it is the part that gets translated. Both are `inline-flex`, and a
@@ -311,6 +319,13 @@
   @media (max-width: 620px) {
     nav { flex-wrap: wrap; gap: 10px; padding: 16px 0; }
     .nav-links { gap: 4px; }
+    /* The flag gets to be a flag here.
+       This is the one width where the option is the flag and nothing else, so
+       raising the size raises the glyph and has no name to drag up with it. At
+       0.85rem an emoji beside a wordmark and a sun icon reads as a smudge; the
+       point of keeping the flag when the name goes is that it can be recognised
+       at a glance, and it has to be big enough for that to be true. */
+    .ui-lang { font-size: 1.45rem; padding: 0 0.35rem; }
     /* GitHub keeps its mark and loses its name: the octocat is the one logo here
        that nobody reads a label for. Clipped rather than `display: none`, so it
        stays in the accessible name of the link. */
