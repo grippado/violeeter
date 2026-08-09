@@ -63,7 +63,7 @@ window.VIOLEETER_I18N = {
     "porting.lede": "A port is a function in <code>build.py</code> that takes the palette and returns a string. Nothing is written by hand, and no port re-picks a colour. Editor ports also get <code>syntax</code>, the mapping from semantic role to palette slot, which is why a string is the same green everywhere.",
     "porting.after": "Add it to <code>EXPORTS</code>, run <code>python3 build.py</code>, open a pull request.",
 
-    "footer": "Violeeter is MIT licensed, by <a href=\"https://github.com/grippado\">grippado</a>. It is the palette <a href=\"https://grippado.github.io/violeet/\">Violeet</a> ships with.",
+    "footer": "Violeeter is MIT licensed, by <a href=\"https://github.com/grippado\">grippado</a>. It is the palette <a href=\"https://grippado.github.io/violeet/\">Violeet</a> ships with. <a href=\"https://github.com/grippado/violeeter/blob/main/docs/BRAND_IDENTITY.md\">Brand identity</a>.",
 
     "viewer.dark": "Dark",
     "viewer.light": "Light",
@@ -125,7 +125,7 @@ window.VIOLEETER_I18N = {
     "porting.lede": "Um port é uma função no <code>build.py</code> que recebe a paleta e devolve uma string. Nada é escrito à mão, e nenhum port reescolhe uma cor. Ports de editor recebem também o <code>syntax</code>, o mapa de papel semântico para slot da paleta, e é por isso que uma string é o mesmo verde em todo lugar.",
     "porting.after": "Adicione ao <code>EXPORTS</code>, rode <code>python3 build.py</code>, abra um pull request.",
 
-    "footer": "Violeeter é licenciado sob MIT, por <a href=\"https://github.com/grippado\">grippado</a>. É a paleta que o <a href=\"https://grippado.github.io/violeet/\">Violeet</a> traz de fábrica.",
+    "footer": "Violeeter é licenciado sob MIT, por <a href=\"https://github.com/grippado\">grippado</a>. É a paleta que o <a href=\"https://grippado.github.io/violeet/\">Violeet</a> traz de fábrica. <a href=\"https://github.com/grippado/violeeter/blob/main/docs/BRAND_IDENTITY.md\">Identidade da marca</a>.",
 
     "viewer.dark": "Escuro",
     "viewer.light": "Claro",
@@ -187,7 +187,7 @@ window.VIOLEETER_I18N = {
     "porting.lede": "Un port es una función en <code>build.py</code> que recibe la paleta y devuelve un string. Nada se escribe a mano, y ningún port reelige un color. Los ports de editor reciben además <code>syntax</code>, el mapa de rol semántico a ranura de la paleta, y por eso un string es el mismo verde en todas partes.",
     "porting.after": "Añádelo a <code>EXPORTS</code>, ejecuta <code>python3 build.py</code>, abre un pull request.",
 
-    "footer": "Violeeter tiene licencia MIT, por <a href=\"https://github.com/grippado\">grippado</a>. Es la paleta con la que viene <a href=\"https://grippado.github.io/violeet/\">Violeet</a>.",
+    "footer": "Violeeter tiene licencia MIT, por <a href=\"https://github.com/grippado\">grippado</a>. Es la paleta con la que viene <a href=\"https://grippado.github.io/violeet/\">Violeet</a>. <a href=\"https://github.com/grippado/violeeter/blob/main/docs/BRAND_IDENTITY.md\">Identidad de marca</a>.",
 
     "viewer.dark": "Oscuro",
     "viewer.light": "Claro",
@@ -249,7 +249,7 @@ window.VIOLEETER_I18N = {
     "porting.lede": "Ein Port ist eine Funktion in <code>build.py</code>, die die Palette nimmt und einen String zurückgibt. Nichts wird von Hand geschrieben, und kein Port wählt eine Farbe neu. Editor-Ports bekommen zusätzlich <code>syntax</code>, die Zuordnung von semantischer Rolle zu Palettenplatz, und darum ist ein String überall dasselbe Grün.",
     "porting.after": "Trag ihn in <code>EXPORTS</code> ein, führe <code>python3 build.py</code> aus, öffne einen Pull Request.",
 
-    "footer": "Violeeter steht unter MIT-Lizenz, von <a href=\"https://github.com/grippado\">grippado</a>. Es ist die Palette, die <a href=\"https://grippado.github.io/violeet/\">Violeet</a> mitbringt.",
+    "footer": "Violeeter steht unter MIT-Lizenz, von <a href=\"https://github.com/grippado\">grippado</a>. Es ist die Palette, die <a href=\"https://grippado.github.io/violeet/\">Violeet</a> mitbringt. <a href=\"https://github.com/grippado/violeeter/blob/main/docs/BRAND_IDENTITY.md\">Markenidentität</a>.",
 
     "viewer.dark": "Dunkel",
     "viewer.light": "Hell",

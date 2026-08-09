@@ -9,6 +9,10 @@ Every colour that can carry text is verified against WCAG AA: measured, not gues
 
 **[grippado.github.io/violeeter →](https://grippado.github.io/violeeter/)**
 
+The shared visual system, logo usage and typography are documented in
+[`docs/BRAND_IDENTITY.md`](docs/BRAND_IDENTITY.md). The logo wordmark uses
+[Akaya Telivigala](https://fonts.google.com/specimen/Akaya+Telivigala?preview.lang=shu_Latn); the theme itself uses system sans and monospace fonts for readability.
+
 </div>
 
 ---
