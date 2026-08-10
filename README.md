@@ -40,6 +40,7 @@ cd violeeter/dist
 | **WezTerm** | `violeeter-{dark,light}.wezterm.toml` | drop in `~/.config/wezterm/colors/` |
 | **Windows Terminal** | `violeeter-{dark,light}.json` | add to `schemes` in `settings.json` |
 | **Slack** | `violeeter-{dark,light}.slack.txt` | Preferences → Appearance → Custom theme → Import theme, paste one line |
+| **Obsidian** | `violeeter.obsidian.css` | copy into `vault/.obsidian/snippets/`, then Settings → Appearance → CSS snippets |
 | **Web** | `violeeter.css` | custom properties, light and dark |
 | **Tailwind** | `violeeter.tailwind.js` | merge into `tailwind.config.js` |
 
@@ -108,6 +109,11 @@ def my_editor(v, syntax):
 
 Add it to `EXPORTS` (or `EDITOR_EXPORTS`, which also receives the syntax
 mapping), run `python3 build.py`, open a pull request.
+
+Both registries write one file per variant. When the target wants both variants
+in the same file — because it switches at runtime, like a browser or Obsidian —
+the port takes the whole dataset instead and `main()` calls it directly. That is
+what `css()`, `tailwind()` and `obsidian()` are.
 
 `violeeter.json` is the only file anyone edits. Two things live in it:
 

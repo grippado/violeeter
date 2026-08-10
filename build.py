@@ -818,6 +818,212 @@ module.exports = {{
 """
 
 
+def obsidian(data: dict, syntax: dict) -> str:
+    """Obsidian, as one CSS snippet holding both variants.
+
+    # Why this is not in EXPORTS or EDITOR_EXPORTS
+
+    Both registries emit one file per variant, and that shape is wrong here.
+    Obsidian switches theme at runtime by swapping `.theme-dark` for
+    `.theme-light` on `body`, and a snippet is enabled or disabled as a whole in
+    the settings pane — there is no per-variant hook to hang two files on. Ship
+    them separately and a reader who flips to light gets a light chrome painted
+    with dark-variant text, which is not a theme, it is a bug. So this follows
+    the `css()` and `tailwind()` precedent instead: a function over the whole
+    dataset, one file in `dist/`, both variants inside it.
+
+    # Why variables and not selectors
+
+    Obsidian's `--background-primary`, `--text-normal` and the rest are the
+    documented surface a theme is built against; the class names underneath them
+    are not, and they are renamed between releases. Overriding the variables
+    means this snippet keeps working on top of whatever theme the reader already
+    likes, and keeps working after an update. Specificity is not a fight: these
+    rules are `.theme-dark`, the same weight as Obsidian's own declarations, and
+    snippets are appended after the theme stylesheet, so later wins.
+
+    The editor is the exception. Live Preview is CodeMirror 6, and its markdown
+    and code decorations (`.cm-comment`, `.cm-string`, `.cm-header-1`) carry no
+    variables at all — the only way to reach them is the class. Those rules are
+    scoped under `.cm-s-obsidian` and kept to colour alone, so the blast radius
+    of a future rename is a token that goes back to the theme's default rather
+    than a broken layout.
+
+    # The choices worth defending
+
+    Headings run accent → brightMagenta → blue → cyan → brightCyan → brightBlack.
+    The house colour is the top of the outline and the slot whose whole job is to
+    recede is the bottom, because an h6 in a real note is a label and not a
+    heading. Rejected: six colours from around the wheel, which makes an outline
+    look like a legend for something.
+
+    Tag and hover backgrounds take `surface` and `selection`, never
+    `surfaceRaised` — that slot is white in the light variant, which is lighter
+    than the note background, so a pill painted with it disappears. Same trap
+    the Slack port fell into and the same way out.
+
+    Links take `type` (cyan), which is the slot the VS Code port already gives
+    `markup.underline.link`. A link is the same thing in a note and in a
+    markdown file open in the editor beside it, so it is the same colour.
+    """
+    c = lambda v, role: resolve(v, syntax, role)
+
+    def variables(v: dict) -> list[tuple[str, str]]:
+        a, ui = v["ansi"], v["ui"]
+        bg, fg = v["background"], v["foreground"]
+        return [
+            # Surfaces
+            ("--background-primary", bg),
+            ("--background-primary-alt", ui["lineHighlight"]),
+            ("--background-secondary", ui["surface"]),
+            ("--background-secondary-alt", ui["surfaceRaised"]),
+            ("--background-modifier-border", ui["border"]),
+            ("--background-modifier-border-hover", ui["gutter"]),
+            ("--background-modifier-border-focus", ui["accent"]),
+            ("--background-modifier-hover", v["selection"]),
+            ("--background-modifier-active-hover", v["selection"]),
+            ("--titlebar-background", ui["surface"]),
+            ("--titlebar-background-focused", ui["surfaceRaised"]),
+            ("--titlebar-text-color", fg),
+            ("--ribbon-background", ui["surface"]),
+            ("--divider-color", ui["border"]),
+            ("--scrollbar-thumb-bg", ui["border"]),
+            ("--scrollbar-active-thumb-bg", ui["gutter"]),
+            # Text. `gutter` and `gutterActive` are the two `ui` entries held to
+            # AA as text, which is exactly what muted and faint body copy are —
+            # so the muted tiers come from there rather than from a surface.
+            ("--text-normal", fg),
+            ("--text-muted", ui["gutterActive"]),
+            ("--text-faint", ui["gutter"]),
+            ("--text-on-accent", ui["onAccent"]),
+            ("--text-error", c(v, "error")),
+            ("--text-success", c(v, "added")),
+            ("--text-warning", c(v, "warning")),
+            ("--text-selection", v["selection"]),
+            ("--text-highlight-bg", v["selection"]),
+            ("--caret-color", v["cursor"]),
+            ("--icon-color", ui["gutterActive"]),
+            ("--icon-color-hover", fg),
+            ("--icon-color-active", ui["accent"]),
+            # Accent and links
+            ("--interactive-accent", ui["accent"]),
+            ("--interactive-accent-hover", a["brightMagenta"]),
+            ("--interactive-normal", ui["surface"]),
+            ("--interactive-hover", ui["surfaceRaised"]),
+            ("--text-accent", ui["accent"]),
+            ("--text-accent-hover", a["brightMagenta"]),
+            ("--link-color", c(v, "type")),
+            ("--link-color-hover", c(v, "namespace")),
+            ("--link-external-color", c(v, "type")),
+            ("--link-external-color-hover", c(v, "namespace")),
+            ("--link-unresolved-color", c(v, "error")),
+            # Blockquote. The bar is the accent so it reads as a quote at a
+            # glance; the text is a muted tier because a quote is somebody
+            # else's voice and should sit behind yours.
+            ("--blockquote-border-color", ui["accent"]),
+            ("--blockquote-color", ui["gutterActive"]),
+            ("--hr-color", ui["border"]),
+            # Code. `--code-*` are the Prism slots reading view paints with.
+            ("--code-background", ui["surface"]),
+            ("--code-normal", fg),
+            ("--code-comment", c(v, "comment")),
+            ("--code-string", c(v, "string")),
+            ("--code-keyword", c(v, "keyword")),
+            ("--code-operator", c(v, "operator")),
+            ("--code-punctuation", c(v, "punctuation")),
+            ("--code-function", c(v, "function")),
+            ("--code-property", c(v, "property")),
+            ("--code-value", c(v, "number")),
+            ("--code-tag", c(v, "tag")),
+            ("--code-important", c(v, "keyword")),
+            # Headings
+            ("--h1-color", ui["accent"]),
+            ("--h2-color", a["brightMagenta"]),
+            ("--h3-color", c(v, "info")),
+            ("--h4-color", c(v, "type")),
+            ("--h5-color", c(v, "namespace")),
+            ("--h6-color", c(v, "comment")),
+            # Tags
+            ("--tag-color", ui["accent"]),
+            ("--tag-background", ui["surface"]),
+            ("--tag-color-hover", ui["onAccent"]),
+            ("--tag-background-hover", ui["accent"]),
+            # Checkboxes. A done item goes to a muted tier rather than staying
+            # full-strength, so a list reads as what is left to do.
+            ("--checkbox-color", ui["accent"]),
+            ("--checkbox-color-hover", a["brightMagenta"]),
+            ("--checkbox-border-color", ui["gutter"]),
+            ("--checkbox-marker-color", ui["onAccent"]),
+            ("--checklist-done-color", ui["gutter"]),
+            # Tables
+            ("--table-header-background", ui["surface"]),
+            ("--table-row-alt-background", ui["lineHighlight"]),
+            ("--table-border-color", ui["border"]),
+        ]
+
+    # Leaf classes only, one list per rule. The theme and `.cm-s-obsidian`
+    # prefixes are attached to *every* selector when the rule is written out —
+    # spelling a comma-separated group here instead would leave the second
+    # selector unscoped, and a `.theme-light` colour applying under
+    # `.theme-dark` is worse than no rule at all.
+    def editor_rules(v: dict) -> list[tuple[list[str], str]]:
+        ui = v["ui"]
+        return [
+            ([".cm-comment"], c(v, "comment")),
+            ([".cm-string", ".cm-string-2"], c(v, "string")),
+            ([".cm-keyword"], c(v, "keyword")),
+            ([".cm-atom"], c(v, "boolean")),
+            ([".cm-number"], c(v, "number")),
+            ([".cm-def"], c(v, "function")),
+            ([".cm-variable"], c(v, "variable")),
+            ([".cm-variable-2", ".cm-property"], c(v, "property")),
+            ([".cm-type"], c(v, "type")),
+            ([".cm-tag"], c(v, "tag")),
+            ([".cm-attribute"], c(v, "attribute")),
+            ([".cm-operator"], c(v, "operator")),
+            ([".cm-meta"], c(v, "namespace")),
+            ([".cm-error"], c(v, "error")),
+            # Markdown's own decorations, which live in the same tree.
+            ([".cm-inline-code"], c(v, "property")),
+            ([".cm-hashtag", ".cm-hashtag-begin", ".cm-hashtag-end"], ui["accent"]),
+            ([".cm-quote"], ui["gutterActive"]),
+            ([".cm-link", ".cm-hmd-internal-link"], c(v, "type")),
+            ([".cm-url"], ui["gutter"]),
+            # The `#` and `*` glyphs that stay visible while the cursor is in
+            # the line. They are scaffolding, so they take the slot that
+            # recedes.
+            ([".cm-formatting"], c(v, "punctuation")),
+            ([".cm-header-1"], ui["accent"]),
+            ([".cm-header-2"], v["ansi"]["brightMagenta"]),
+            ([".cm-header-3"], c(v, "info")),
+            ([".cm-header-4"], c(v, "type")),
+            ([".cm-header-5"], c(v, "namespace")),
+            ([".cm-header-6"], c(v, "comment")),
+        ]
+
+    def block(v: dict, theme: str) -> str:
+        rows = "\n".join(f"  {name}: {value};" for name, value in variables(v))
+        rules = "\n".join(
+            "{} {{ color: {}; }}".format(
+                ", ".join(f".{theme} .cm-s-obsidian {leaf}" for leaf in leaves),
+                colour,
+            )
+            for leaves, colour in editor_rules(v)
+        )
+        return f"/* {v['name']} */\n.{theme} {{\n{rows}\n}}\n\n{rules}\n"
+
+    dark, light = data["variants"]["dark"], data["variants"]["light"]
+    return f"""/* Violeeter {data['version']} for Obsidian — {data['homepage']}
+   Generated by build.py. Do not edit.
+
+   Install: copy this file into `vault/.obsidian/snippets/`, then switch it on
+   under Settings → Appearance → CSS snippets. Both variants are in here, so it
+   follows Obsidian's own dark/light toggle without touching anything else. */
+
+{block(dark, "theme-dark")}
+{block(light, "theme-light")}"""
+
+
 EXPORTS = {
     "itermcolors": iterm,
     "toml": alacritty,
@@ -894,6 +1100,9 @@ def main() -> int:
         for ext, render in EDITOR_EXPORTS.items():
             (DIST / f"violeeter-{key}.{ext}").write_text(render(v, syntax))
     (DIST / "violeeter.tailwind.js").write_text(tailwind(data))
+    # Both variants in one file, like the stylesheet above and unlike the
+    # per-variant exports — see `obsidian()` for why the registries do not fit.
+    (DIST / "violeeter.obsidian.css").write_text(obsidian(data, syntax))
     stylesheet = css(data)
     (DIST / "violeeter.css").write_text(stylesheet)
 
