@@ -1,0 +1,52 @@
+{
+  "name": "violeeter",
+  "displayName": "Violeeter",
+  "description": "A violet theme for everything. Dark and light, every colour verified against WCAG AA.",
+  "version": "2.1.0",
+  "publisher": "grippado",
+  "license": "MIT",
+  "icon": "icon.png",
+  "homepage": "https://grippado.github.io/violeeter/",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/grippado/violeeter.git"
+  },
+  "bugs": {
+    "url": "https://github.com/grippado/violeeter/issues"
+  },
+  "engines": {
+    "vscode": "^1.70.0"
+  },
+  "categories": [
+    "Themes"
+  ],
+  "keywords": [
+    "theme",
+    "colour theme",
+    "color theme",
+    "violet",
+    "purple",
+    "dark theme",
+    "light theme",
+    "accessibility",
+    "wcag"
+  ],
+  "galleryBanner": {
+    "color": "#24203F",
+    "theme": "dark"
+  },
+  "contributes": {
+    "themes": [
+      {
+        "label": "Violeeter Dark",
+        "uiTheme": "vs-dark",
+        "path": "./themes/violeeter-dark.json"
+      },
+      {
+        "label": "Violeeter Light",
+        "uiTheme": "vs",
+        "path": "./themes/violeeter-light.json"
+      }
+    ]
+  }
+}

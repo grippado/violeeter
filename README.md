@@ -28,7 +28,7 @@ cd violeeter/dist
 
 | Where | File | How |
 |---|---|---|
-| **VS Code** | `violeeter-{dark,light}.vscode.json` | copy into your extension's `themes/`, or `.vscode/` for a workspace |
+| **VS Code** | `vscode-extension/` | install from the Marketplace, or `cd dist/vscode-extension && npx @vscode/vsce package` and install the `.vsix` |
 | **Neovim** | `violeeter-{dark,light}.nvim.lua` | drop in `~/.config/nvim/colors/violeeter-dark.lua`, then `:colorscheme violeeter-dark` |
 | **Zed** | `violeeter-{dark,light}.zed.json` | copy into `~/.config/zed/themes/` |
 | **iTerm2** | `violeeter-{dark,light}.itermcolors` | double-click, then Settings → Profiles → Colors → Presets |
@@ -39,6 +39,12 @@ cd violeeter/dist
 | **Windows Terminal** | `violeeter-{dark,light}.json` | add to `schemes` in `settings.json` |
 | **Web** | `violeeter.css` | custom properties, light and dark |
 | **Tailwind** | `violeeter.tailwind.js` | merge into `tailwind.config.js` |
+
+The VS Code entry is a whole publishable extension — manifest, both themes,
+icon and readme — generated into `dist/vscode-extension/` by the same build.
+Its `package.json` takes the version, name, description and banner colour from
+`violeeter.json`, so there is no second place for any of them to drift, and its
+`themes/` are byte-identical to the `.vscode.json` exports beside them.
 
 The Neovim colorscheme sets highlight groups directly (no plugin manager, no
 dependency, treesitter groups included) and sets `terminal_color_*` so
@@ -110,6 +116,36 @@ That mapping is why a string is the same green in VS Code, Neovim and Zed. A
 port that re-picks colours locally is how a theme ends up subtly different in
 every editor, and it is the one thing a pull request here will be asked to
 change.
+
+## Publishing the VS Code extension
+
+`python3 build.py` writes the package; publishing only uploads it. Bump
+`version` in `violeeter.json` and rebuild — the manifest follows, and there is
+no second version to remember.
+
+[Open VSX](https://open-vsx.org) (VSCodium, Cursor, Windsurf, Gitpod). The
+token comes from open-vsx.org → Log in with GitHub → Settings → Access Tokens,
+and the namespace has to match `publisher` in the generated manifest:
+
+```sh
+python3 build.py
+cd dist/vscode-extension
+npx ovsx create-namespace grippado -p "$OVSX_PAT"   # once, ever
+npx ovsx publish -p "$OVSX_PAT"
+```
+
+The Visual Studio Marketplace, which needs an Azure DevOps organisation and a
+personal access token scoped to *Marketplace → Manage*, issued for **all
+accessible organisations**:
+
+```sh
+cd dist/vscode-extension
+npx @vscode/vsce publish -p "$VSCE_PAT"
+```
+
+`npx @vscode/vsce package` writes a `.vsix` without publishing anything, which
+is also how you install the theme on a machine without either registry:
+`code --install-extension violeeter-<version>.vsix`.
 
 ## Licence
 
