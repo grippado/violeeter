@@ -1,6 +1,6 @@
 {
   "name": "Violeeter",
-  "version": "2.1.2",
+  "version": "2.2.0",
   "license": "MIT",
   "description": "A violet theme for everything. Dark and light, every colour verified against WCAG AA.",
   "homepage": "https://grippado.github.io/violeeter/",
@@ -59,6 +59,8 @@
       "ui": {
         "surface": "#2B2649",
         "surfaceRaised": "#332D55",
+        "sunken": "#1D1935",
+        "marker": "#5C4820",
         "border": "#3F3968",
         "lineHighlight": "#2A2547",
         "gutter": "#8F88BD",
@@ -95,6 +97,8 @@
       "ui": {
         "surface": "#F2EEFB",
         "surfaceRaised": "#FFFFFF",
+        "sunken": "#F1EBFA",
+        "marker": "#F9EAB8",
         "border": "#DCD5EE",
         "lineHighlight": "#F1ECFA",
         "gutter": "#71698F",
@@ -124,6 +128,16 @@
   },
   "_ui": [
     "Surfaces an editor needs and sixteen ANSI slots do not have.",
+    "`surface` and `surfaceRaised` sit ABOVE the note ground and `sunken` sits",
+    "BELOW it, which is what a code block needs: text painted on a surface that",
+    "is lighter than the background spends contrast the palette does not have to",
+    "spare, and `brightBlack` is the slot that proves it (4.53 on `background`,",
+    "4.15 on `surface` in the dark variant, under the AA floor).",
+    "`marker` is the highlighter, and it is the one surface here that is NOT in",
+    "the violet family. That is the point: selection is violet, so a marker that",
+    "were violet too would be invisible the moment somebody selected the very",
+    "text they had marked. Amber against violet reads as a different thing at a",
+    "glance, at any luminance.",
     "`gutter` and `gutterActive` are TEXT (the line number column) and are held to",
     "AA like any other text. The rest are surfaces and are only required to be",
     "distinguishable from the background."
