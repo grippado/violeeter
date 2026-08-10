@@ -28,7 +28,7 @@ cd violeeter/dist
 
 | Where | File | How |
 |---|---|---|
-| **VS Code** | `violeeter-{dark,light}.vscode.json` | copy into your extension's `themes/`, or `.vscode/` for a workspace |
+| **VS Code** | `vscode-extension/` | install from the Marketplace, or `cd dist/vscode-extension && npx @vscode/vsce package` and install the `.vsix` |
 | **Neovim** | `violeeter-{dark,light}.nvim.lua` | drop in `~/.config/nvim/colors/violeeter-dark.lua`, then `:colorscheme violeeter-dark` |
 | **Zed** | `violeeter-{dark,light}.zed.json` | copy into `~/.config/zed/themes/` |
 | **iTerm2** | `violeeter-{dark,light}.itermcolors` | double-click, then Settings → Profiles → Colors → Presets |
@@ -39,6 +39,12 @@ cd violeeter/dist
 | **Windows Terminal** | `violeeter-{dark,light}.json` | add to `schemes` in `settings.json` |
 | **Web** | `violeeter.css` | custom properties, light and dark |
 | **Tailwind** | `violeeter.tailwind.js` | merge into `tailwind.config.js` |
+
+The VS Code entry is a whole publishable extension — manifest, both themes,
+icon and readme — generated into `dist/vscode-extension/` by the same build.
+Its `package.json` takes the version, name, description and banner colour from
+`violeeter.json`, so there is no second place for any of them to drift, and its
+`themes/` are byte-identical to the `.vscode.json` exports beside them.
 
 The Neovim colorscheme sets highlight groups directly (no plugin manager, no
 dependency, treesitter groups included) and sets `terminal_color_*` so

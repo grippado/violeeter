@@ -370,6 +370,108 @@ def vscode(v: dict, syntax: dict) -> str:
     return json.dumps(theme, indent=2) + "\n"
 
 
+def vscode_extension(data: dict, syntax: dict) -> dict[str, str]:
+    """The whole publishable extension, as a path -> contents map.
+
+    A theme extension is metadata plus the two files `vscode()` already writes,
+    so the only thing worth guarding is that it stays *only* that. Hand-writing
+    the `package.json` would create a second place a colour, a version or a name
+    can live — and a `package.json` claiming 2.0.0 beside a palette at 2.1.0 is
+    exactly the drift this generator exists to prevent. So the manifest is
+    derived from `violeeter.json` too, and the themes are the same bytes as
+    `dist/violeeter-{dark,light}.vscode.json`.
+
+    `icon.png` is not written here: it is a raster of the mark, versioned under
+    `assets/`, and `main()` copies it in. The Marketplace requires a 128x128 PNG
+    and the mark is not derivable from the palette.
+    """
+    repo = "https://github.com/grippado/violeeter"
+    dark, light = data["variants"]["dark"], data["variants"]["light"]
+
+    manifest = {
+        "name": "violeeter",
+        "displayName": data["name"],
+        "description": data["description"],
+        "version": data["version"],
+        "publisher": "grippado",
+        "license": data["license"],
+        "icon": "icon.png",
+        "homepage": data["homepage"],
+        "repository": {"type": "git", "url": f"{repo}.git"},
+        "bugs": {"url": f"{repo}/issues"},
+        "engines": {"vscode": "^1.70.0"},
+        "categories": ["Themes"],
+        "keywords": ["theme", "colour theme", "color theme", "violet",
+                     "purple", "dark theme", "light theme", "accessibility",
+                     "wcag"],
+        # The banner sits behind the icon on the Marketplace page. `theme` tells
+        # it which way to colour its own text; getting it wrong is how a listing
+        # ends up with dark text on the dark background.
+        "galleryBanner": {"color": dark["background"], "theme": "dark"},
+        "contributes": {
+            "themes": [
+                {
+                    "label": dark["name"],
+                    "uiTheme": "vs-dark",
+                    "path": "./themes/violeeter-dark.json",
+                },
+                {
+                    "label": light["name"],
+                    "uiTheme": "vs",
+                    "path": "./themes/violeeter-light.json",
+                },
+            ]
+        },
+    }
+
+    # Marketplace README images are fetched by their absolute URL — a relative
+    # path resolves against marketplace.visualstudio.com and 404s.
+    raw = "https://raw.githubusercontent.com/grippado/violeeter/main"
+    readme = f"""# {data['name']}
+
+{data['description']}
+
+Two themes, **{dark['name']}** and **{light['name']}**, generated from one
+palette file. `Cmd+K Cmd+T` (`Ctrl+K Ctrl+T` on Windows and Linux) to switch.
+
+![{dark['name']}]({raw}/assets/violeeter-dark.png)
+
+## Every colour is checked
+
+Every colour that carries text clears WCAG AA (4.5:1) against the background it
+is drawn on, in both variants, and the build fails if one does not. That
+includes the line number column, which is text somebody reads while looking for
+a line, and colour 7 in the light variant, which is the default foreground of a
+large share of terminal programs.
+
+## The same theme everywhere else
+
+This extension is one port of a palette that also ships for Neovim, Zed, iTerm2,
+Alacritty, Kitty, Ghostty, WezTerm, Windows Terminal, btop, CSS and Tailwind.
+Every port resolves the same role-to-slot mapping, so a string is the same green
+in your editor and in the terminal beside it.
+
+The full set, and the palette itself: <{data['homepage']}>
+
+## Licence
+
+{data['license']}. Take it, port it, change it.
+"""
+
+    # Everything the package does not need at runtime. The generated tree is
+    # already minimal, so this is a guard against a future file rather than a
+    # cleanup of a present one.
+    vscodeignore = ".vscode/**\n**/*.map\n.gitignore\n"
+
+    return {
+        "package.json": json.dumps(manifest, indent=2) + "\n",
+        "themes/violeeter-dark.json": vscode(dark, syntax),
+        "themes/violeeter-light.json": vscode(light, syntax),
+        "README.md": readme,
+        ".vscodeignore": vscodeignore,
+    }
+
+
 def neovim(v: dict, syntax: dict) -> str:
     """A colorscheme that sets highlight groups directly — no plugin, no deps.
 
@@ -731,7 +833,23 @@ def main() -> int:
     (DIST / "violeeter.tailwind.js").write_text(tailwind(data))
     stylesheet = css(data)
     (DIST / "violeeter.css").write_text(stylesheet)
-    written = sorted(p.name for p in DIST.iterdir())
+
+    # The VS Code extension: a directory rather than a file, because that is the
+    # unit `vsce package` takes. Publishing is `cd dist/vscode-extension &&
+    # npx @vscode/vsce publish` — nothing in it is edited by hand.
+    ext = DIST / "vscode-extension"
+    for name, contents in vscode_extension(data, syntax).items():
+        target = ext / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(contents)
+    for asset, dest in ((ROOT / "assets/icon.png", "icon.png"),
+                        (ROOT / "LICENSE", "LICENSE")):
+        if not asset.is_file():
+            raise SystemExit(f"missing {asset}, which the extension package needs")
+        (ext / dest).write_bytes(asset.read_bytes())
+    print(f"wrote {len(list(ext.rglob('*')))} paths to {ext}/")
+
+    written = sorted(p.name for p in DIST.iterdir() if p.is_file())
     print(f"wrote {len(written)} files to {DIST}/")
     for name in written:
         print(f"  {name}")
@@ -755,6 +873,9 @@ def main() -> int:
         # can already see rendered above.
         page_dist = page / "dist"
         page_dist.mkdir(exist_ok=True)
+        # Files only. The one directory in `dist/` is the VS Code extension,
+        # which is a package to publish rather than a file to read, and the page
+        # links it to the Marketplace instead of serving its parts.
         for item in DIST.iterdir():
             if item.is_file():
                 (page_dist / item.name).write_bytes(item.read_bytes())
