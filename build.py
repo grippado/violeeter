@@ -857,10 +857,19 @@ def obsidian(data: dict, syntax: dict) -> str:
     heading. Rejected: six colours from around the wheel, which makes an outline
     look like a legend for something.
 
-    Tag and hover backgrounds take `surface` and `selection`, never
-    `surfaceRaised` — that slot is white in the light variant, which is lighter
-    than the note background, so a pill painted with it disappears. Same trap
-    the Slack port fell into and the same way out.
+    `surfaceRaised` is white in the light variant — lighter than the note
+    background — so it can only be used where being lighter than the note is
+    the point. That splits its uses in two. Chrome that sits *outside* the note
+    (`--background-secondary-alt`, `--titlebar-background-focused`) keeps it:
+    there the slot reads as a raised panel, and a panel that goes white on a
+    near-white app frame is still a panel. Anything painted *inside* or *over*
+    the note — tag pills, hover feedback, highlight backgrounds — must not use
+    it, because it disappears against the note it is supposed to sit on. Those
+    take `surface` and `selection` instead. `--interactive-hover` was the one
+    that got this wrong: at `surfaceRaised` it measured 1.05 against
+    `--background-primary` in the light variant, an invisible hover, and it now
+    takes `selection`, the same slot `--background-modifier-hover` already
+    used. Same trap the Slack port fell into and the same way out.
 
     Links take `type` (cyan), which is the slot the VS Code port already gives
     `markup.underline.link`. A link is the same thing in a note and in a
@@ -909,7 +918,7 @@ def obsidian(data: dict, syntax: dict) -> str:
             ("--interactive-accent", ui["accent"]),
             ("--interactive-accent-hover", a["brightMagenta"]),
             ("--interactive-normal", ui["surface"]),
-            ("--interactive-hover", ui["surfaceRaised"]),
+            ("--interactive-hover", v["selection"]),
             ("--text-accent", ui["accent"]),
             ("--text-accent-hover", a["brightMagenta"]),
             ("--link-color", c(v, "type")),
@@ -924,7 +933,24 @@ def obsidian(data: dict, syntax: dict) -> str:
             ("--blockquote-color", ui["gutterActive"]),
             ("--hr-color", ui["border"]),
             # Code. `--code-*` are the Prism slots reading view paints with.
-            ("--code-background", ui["surface"]),
+            #
+            # The block keeps the note background instead of `surface`, which
+            # costs a code block its outline against the note. Measured, not
+            # guessed: `comment` and `punctuation` both resolve to `brightBlack`,
+            # the slot that recedes and therefore already sits on the AA line at
+            # 4.53 against `background` in the dark variant. Painting it on
+            # `surface` instead spends that margin and lands at 4.15, under the
+            # 4.5 floor the README promises. `lineHighlight` does not save it
+            # either (4.21). The other way out would be a slot that clears 4.5
+            # on `surface` in both variants, and the two that do — `gutter`
+            # (4.35/4.47, so it does not) and `gutterActive` (7.11/10.04) —
+            # fail for a different reason: `gutterActive` is the muted *body*
+            # tier this file already spends on `--text-muted`, so comments
+            # would come out louder than in every other port and `syntax`
+            # would stop being one mapping across ports, which is the whole
+            # reason that map exists. A block that reads is worth more than a
+            # block that frames.
+            ("--code-background", bg),
             ("--code-normal", fg),
             ("--code-comment", c(v, "comment")),
             ("--code-string", c(v, "string")),
@@ -939,9 +965,15 @@ def obsidian(data: dict, syntax: dict) -> str:
             # Headings
             ("--h1-color", ui["accent"]),
             ("--h2-color", a["brightMagenta"]),
-            ("--h3-color", c(v, "info")),
-            ("--h4-color", c(v, "type")),
-            ("--h5-color", c(v, "namespace")),
+            # The ramp is a ramp of slots, not of code roles: an outline level
+            # is not a diagnostic severity, and reading `info`/`type`/
+            # `namespace` here would let a future remap of the `syntax` map
+            # silently repaint a note's headings. h6 is the exception and takes
+            # the role, because the reason it is last is exactly the reason
+            # comments take that slot: it is the one whose job is to recede.
+            ("--h3-color", a["blue"]),
+            ("--h4-color", a["cyan"]),
+            ("--h5-color", a["brightCyan"]),
             ("--h6-color", c(v, "comment")),
             # Tags
             ("--tag-color", ui["accent"]),
@@ -974,6 +1006,14 @@ def obsidian(data: dict, syntax: dict) -> str:
             ([".cm-keyword"], c(v, "keyword")),
             ([".cm-atom"], c(v, "boolean")),
             ([".cm-number"], c(v, "number")),
+            # `.cm-def` marks a definition, and CodeMirror 5's stream modes put
+            # it on `let x` as readily as on a function. It still takes
+            # `function` rather than `variable`, because in this palette
+            # `variable` resolves to `foreground`: mapping it there would paint
+            # every definition as plain body text and erase the "something is
+            # declared here" signal for functions too, to spare a variable a
+            # colour it arguably should not have. Keeping `function` is the
+            # cheaper error — a declaration reads as a declaration either way.
             ([".cm-def"], c(v, "function")),
             ([".cm-variable"], c(v, "variable")),
             ([".cm-variable-2", ".cm-property"], c(v, "property")),
@@ -995,9 +1035,9 @@ def obsidian(data: dict, syntax: dict) -> str:
             ([".cm-formatting"], c(v, "punctuation")),
             ([".cm-header-1"], ui["accent"]),
             ([".cm-header-2"], v["ansi"]["brightMagenta"]),
-            ([".cm-header-3"], c(v, "info")),
-            ([".cm-header-4"], c(v, "type")),
-            ([".cm-header-5"], c(v, "namespace")),
+            ([".cm-header-3"], v["ansi"]["blue"]),
+            ([".cm-header-4"], v["ansi"]["cyan"]),
+            ([".cm-header-5"], v["ansi"]["brightCyan"]),
             ([".cm-header-6"], c(v, "comment")),
         ]
 
@@ -1024,6 +1064,10 @@ def obsidian(data: dict, syntax: dict) -> str:
 {block(light, "theme-light")}"""
 
 
+# Not every port is in here: both registries emit one file per variant, so a
+# port that has to hold both variants in one file (`css`, `tailwind`,
+# `obsidian`) is a function over the whole dataset called directly from
+# `main()` instead.
 EXPORTS = {
     "itermcolors": iterm,
     "toml": alacritty,
