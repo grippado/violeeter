@@ -934,23 +934,34 @@ def obsidian(data: dict, syntax: dict) -> str:
             ("--hr-color", ui["border"]),
             # Code. `--code-*` are the Prism slots reading view paints with.
             #
-            # The block keeps the note background instead of `surface`, which
-            # costs a code block its outline against the note. Measured, not
-            # guessed: `comment` and `punctuation` both resolve to `brightBlack`,
-            # the slot that recedes and therefore already sits on the AA line at
-            # 4.53 against `background` in the dark variant. Painting it on
-            # `surface` instead spends that margin and lands at 4.15, under the
-            # 4.5 floor the README promises. `lineHighlight` does not save it
-            # either (4.21). The other way out would be a slot that clears 4.5
-            # on `surface` in both variants, and the two that do — `gutter`
-            # (4.35/4.47, so it does not) and `gutterActive` (7.11/10.04) —
-            # fail for a different reason: `gutterActive` is the muted *body*
-            # tier this file already spends on `--text-muted`, so comments
-            # would come out louder than in every other port and `syntax`
-            # would stop being one mapping across ports, which is the whole
-            # reason that map exists. A block that reads is worth more than a
-            # block that frames.
-            ("--code-background", bg),
+            # The block sits on `sunken`, and that slot exists because of this
+            # port. Measured, not guessed: `comment` and `punctuation` both
+            # resolve to `brightBlack`, the slot whose job is to recede and
+            # which therefore already sits on the AA line at 4.53 against
+            # `background` in the dark variant. Every surface the palette had
+            # was *lighter* than the note ground, so painting code on one spent
+            # that margin instead of buying it: `surface` lands at 4.15 and
+            # `lineHighlight` at 4.21, both under the 4.5 floor the README
+            # promises.
+            #
+            # Lifting the text was tried first and rejected. The only slots that
+            # clear 4.5 on `surface` in both variants are `gutter` (4.35/4.47,
+            # so it does not, in fact) and `gutterActive` (7.11/10.04), and
+            # `gutterActive` is the muted *body* tier this file already spends
+            # on `--text-muted`: comments would come out louder here than in
+            # every other port, and `syntax` would stop being one mapping across
+            # ports, which is the whole reason that map exists.
+            #
+            # So the fix went the other way, and lowered the ground instead of
+            # raising the ink. `sunken` is one step BELOW `background` rather
+            # than above it (#1D1935 dark, #F1EBFA light), which is what a code
+            # well looks like anyway. `brightBlack` reads at 4.93 dark and the
+            # worst slot in the light block is `green` at 4.57; the block keeps
+            # its outline against the note. Falling back to `bg` also cleared AA
+            # and was what shipped first, but it bought legibility by giving up
+            # the frame, and a code block that cannot be seen as a block is a
+            # different defect, not a fixed one.
+            ("--code-background", ui["sunken"]),
             ("--code-normal", fg),
             ("--code-comment", c(v, "comment")),
             ("--code-string", c(v, "string")),

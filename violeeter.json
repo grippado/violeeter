@@ -59,6 +59,7 @@
       "ui": {
         "surface": "#2B2649",
         "surfaceRaised": "#332D55",
+        "sunken": "#1D1935",
         "border": "#3F3968",
         "lineHighlight": "#2A2547",
         "gutter": "#8F88BD",
@@ -95,6 +96,7 @@
       "ui": {
         "surface": "#F2EEFB",
         "surfaceRaised": "#FFFFFF",
+        "sunken": "#F1EBFA",
         "border": "#DCD5EE",
         "lineHighlight": "#F1ECFA",
         "gutter": "#71698F",
@@ -124,6 +126,11 @@
   },
   "_ui": [
     "Surfaces an editor needs and sixteen ANSI slots do not have.",
+    "`surface` and `surfaceRaised` sit ABOVE the note ground and `sunken` sits",
+    "BELOW it, which is what a code block needs: text painted on a surface that",
+    "is lighter than the background spends contrast the palette does not have to",
+    "spare, and `brightBlack` is the slot that proves it (4.53 on `background`,",
+    "4.15 on `surface` in the dark variant, under the AA floor).",
     "`gutter` and `gutterActive` are TEXT (the line number column) and are held to",
     "AA like any other text. The rest are surfaces and are only required to be",
     "distinguishable from the background."
