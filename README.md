@@ -39,6 +39,7 @@ cd violeeter/dist
 | **Ghostty** | `violeeter-{dark,light}.ghostty` | paste into your config |
 | **WezTerm** | `violeeter-{dark,light}.wezterm.toml` | drop in `~/.config/wezterm/colors/` |
 | **Windows Terminal** | `violeeter-{dark,light}.json` | add to `schemes` in `settings.json` |
+| **Slack** | `violeeter-{dark,light}.slack.txt` | Preferences → Appearance → Custom theme → Import theme, paste one line |
 | **Web** | `violeeter.css` | custom properties, light and dark |
 | **Tailwind** | `violeeter.tailwind.js` | merge into `tailwind.config.js` |
 
