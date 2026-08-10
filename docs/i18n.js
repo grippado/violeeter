@@ -47,6 +47,9 @@ window.VIOLEETER_I18N = {
 
     "install.h2": "Install",
     "install.lede": "Every file is generated from one source, so the green in your editor is the green in your terminal.",
+    "install.vscode_name": "VS Code: install it from the Marketplace",
+    "install.vscode_note": "Both variants, no file to copy. Search for \u201cVioleeter\u201d in the Extensions view, or open the listing.",
+    "install.vscode_cta": "Open the listing",
     "install.whole_h3": "Or take the whole set",
     "install.whole_lede": "Copying from above needs nothing installed. This is for when you want all of them at once.",
 
@@ -115,6 +118,9 @@ window.VIOLEETER_I18N = {
 
     "install.h2": "Instalação",
     "install.lede": "Todo arquivo é gerado de uma fonte só, então o verde do seu editor é o verde do seu terminal.",
+    "install.vscode_name": "VS Code: instale pelo Marketplace",
+    "install.vscode_note": "As duas variantes, sem arquivo para copiar. Busque por \u201cVioleeter\u201d na aba de extensões, ou abra a página.",
+    "install.vscode_cta": "Abrir a página",
     "install.whole_h3": "Ou leve o conjunto inteiro",
     "install.whole_lede": "Copiar dali de cima não exige instalar nada. Isto aqui é para quando você quer todos de uma vez.",
 
@@ -183,6 +189,9 @@ window.VIOLEETER_I18N = {
 
     "install.h2": "Instalación",
     "install.lede": "Cada archivo se genera de una sola fuente, así que el verde de tu editor es el verde de tu terminal.",
+    "install.vscode_name": "VS Code: instálalo desde el Marketplace",
+    "install.vscode_note": "Las dos variantes, sin archivo que copiar. Busca \u201cVioleeter\u201d en la vista de extensiones, o abre la página.",
+    "install.vscode_cta": "Abrir la página",
     "install.whole_h3": "O llévate el conjunto entero",
     "install.whole_lede": "Copiar de arriba no exige instalar nada. Esto es para cuando los quieres todos de una vez.",
 
@@ -251,6 +260,9 @@ window.VIOLEETER_I18N = {
 
     "install.h2": "Installation",
     "install.lede": "Jede Datei wird aus einer einzigen Quelle erzeugt, also ist das Grün in deinem Editor das Grün in deinem Terminal.",
+    "install.vscode_name": "VS Code: aus dem Marketplace installieren",
+    "install.vscode_note": "Beide Varianten, keine Datei zum Kopieren. Suche in der Erweiterungsansicht nach \u201cVioleeter\u201d, oder öffne die Seite.",
+    "install.vscode_cta": "Seite öffnen",
     "install.whole_h3": "Oder nimm den ganzen Satz",
     "install.whole_lede": "Für das Kopieren von oben muss nichts installiert sein. Das hier ist für den Fall, dass du alle auf einmal willst.",
 
