@@ -9,6 +9,8 @@ Every colour that can carry text is verified against WCAG AA: measured, not gues
 
 **[grippado.github.io/violeeter →](https://grippado.github.io/violeeter/)**
 
+[![VS Code Marketplace](https://img.shields.io/visual-studio-marketplace/v/grippado.violeeter?label=VS%20Code%20Marketplace&color=6E56CF)](https://marketplace.visualstudio.com/items?itemName=grippado.violeeter)
+
 The shared visual system, logo usage and typography are documented in
 [`docs/BRAND_IDENTITY.md`](docs/BRAND_IDENTITY.md). The logo wordmark uses
 [Akaya Telivigala](https://fonts.google.com/specimen/Akaya+Telivigala?preview.lang=shu_Latn); the theme itself uses system sans and monospace fonts for readability.
@@ -28,7 +30,7 @@ cd violeeter/dist
 
 | Where | File | How |
 |---|---|---|
-| **VS Code** | `vscode-extension/` | install from the Marketplace, or `cd dist/vscode-extension && npx @vscode/vsce package` and install the `.vsix` |
+| **VS Code** | [Marketplace](https://marketplace.visualstudio.com/items?itemName=grippado.violeeter) | install `grippado.violeeter`, or build the `.vsix` from `dist/vscode-extension/` |
 | **Neovim** | `violeeter-{dark,light}.nvim.lua` | drop in `~/.config/nvim/colors/violeeter-dark.lua`, then `:colorscheme violeeter-dark` |
 | **Zed** | `violeeter-{dark,light}.zed.json` | copy into `~/.config/zed/themes/` |
 | **iTerm2** | `violeeter-{dark,light}.itermcolors` | double-click, then Settings → Profiles → Colors → Presets |

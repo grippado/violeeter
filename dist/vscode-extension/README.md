@@ -5,7 +5,9 @@ A violet theme for everything. Dark and light, every colour verified against WCA
 Two themes, **Violeeter Dark** and **Violeeter Light**, generated from one
 palette file. `Cmd+K Cmd+T` (`Ctrl+K Ctrl+T` on Windows and Linux) to switch.
 
-![Violeeter Dark](https://raw.githubusercontent.com/grippado/violeeter/main/assets/violeeter-dark.png)
+![Violeeter Dark](https://raw.githubusercontent.com/grippado/violeeter/main/assets/screenshot-dark.png)
+
+![Violeeter Light](https://raw.githubusercontent.com/grippado/violeeter/main/assets/screenshot-light.png)
 
 ## Every colour is checked
 

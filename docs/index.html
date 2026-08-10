@@ -204,6 +204,21 @@
   h2 { font-size: 1.6rem; letter-spacing: -0.02em; margin-bottom: 10px; }
   .section-lede { opacity: 0.82; max-width: 62ch; margin: 0 0 26px; }
 
+  /* The one port that installs itself. It sits above the file grid because
+     clicking a button is a different act from copying a file, and burying it
+     among eleven identical cards would have asked a reader to work that out on
+     their own. Accent border rather than a filled button: the page has no other
+     solid call to action, and one appearing here would read as an ad. */
+  .marketplace {
+    display: flex; flex-wrap: wrap; align-items: center; gap: 14px;
+    border: 1px solid var(--violeeter-magenta); border-radius: 10px;
+    padding: 16px 18px; margin: 0 0 22px;
+  }
+  .marketplace-text { flex: 1 1 260px; }
+  .marketplace-name { font-weight: 650; font-size: 0.96rem; }
+  .marketplace-note { font-size: 0.82rem; opacity: 0.7; margin-top: 3px; }
+  .marketplace .ghost { border-color: var(--violeeter-magenta); }
+
   .ports { display: grid; gap: 12px; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
   .port {
     display: block; text-decoration: none; color: inherit;
@@ -661,6 +676,15 @@
     Every file is generated from one source, so the green in your editor is the
     green in your terminal.
   </p>
+  <div class="marketplace">
+    <div class="marketplace-text">
+      <div class="marketplace-name" data-i18n="install.vscode_name">VS Code: install it from the Marketplace</div>
+      <div class="marketplace-note" data-i18n="install.vscode_note">Both variants, no file to copy. Search for “Violeeter” in the Extensions view, or open the listing.</div>
+    </div>
+    <a class="ghost" href="https://marketplace.visualstudio.com/items?itemName=grippado.violeeter"
+       data-i18n="install.vscode_cta">Open the listing</a>
+  </div>
+
   <div class="ports" id="ports"></div>
 
   <div id="viewer-host"></div>
@@ -805,7 +829,10 @@ cd violeeter/dist</pre>
                  "brightBlue","brightMagenta","brightCyan","brightWhite"];
 
   const PORTS = [
-    ["VS Code",          "violeeter-{v}.vscode.json"],
+    // Named for the file, because the card above installs the same theme and
+    // two cards both called "VS Code" would read as a duplicate rather than as
+    // the two ways in.
+    ["VS Code (file)",   "violeeter-{v}.vscode.json"],
     ["Neovim",           "violeeter-{v}.nvim.lua"],
     ["Zed",              "violeeter-{v}.zed.json"],
     ["iTerm2",           "violeeter-{v}.itermcolors"],

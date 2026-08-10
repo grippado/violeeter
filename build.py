@@ -426,6 +426,12 @@ def vscode_extension(data: dict, syntax: dict) -> dict[str, str]:
 
     # Marketplace README images are fetched by their absolute URL — a relative
     # path resolves against marketplace.visualstudio.com and 404s.
+    #
+    # They are screenshots of the editor and not the logo. A listing has one
+    # job, which is to show a reader what their code will look like, and the
+    # mark answers a different question. The two are the same file at the same
+    # scroll position under each variant, so the pair is a comparison rather
+    # than two separate advertisements.
     raw = "https://raw.githubusercontent.com/grippado/violeeter/main"
     readme = f"""# {data['name']}
 
@@ -434,7 +440,9 @@ def vscode_extension(data: dict, syntax: dict) -> dict[str, str]:
 Two themes, **{dark['name']}** and **{light['name']}**, generated from one
 palette file. `Cmd+K Cmd+T` (`Ctrl+K Ctrl+T` on Windows and Linux) to switch.
 
-![{dark['name']}]({raw}/assets/violeeter-dark.png)
+![{dark['name']}]({raw}/assets/screenshot-dark.png)
+
+![{light['name']}]({raw}/assets/screenshot-light.png)
 
 ## Every colour is checked
 
