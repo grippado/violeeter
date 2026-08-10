@@ -458,6 +458,60 @@
   .with-icon { display: inline-flex; align-items: center; gap: 0.45em; }
 
 
+  /* ---- the wider constellation ---- */
+  /* The one label on this page that is not a heading. It names the section
+     without competing with the <h2> under it, so it is small, spaced out, and
+     takes the accent rather than the body colour. */
+  .eyebrow {
+    margin: 0 0 10px;
+    font-size: 0.72rem; font-weight: 700;
+    letter-spacing: 0.16em; text-transform: uppercase;
+    color: var(--violeeter-magenta);
+  }
+  /* The [GLabs] tile leads the copy the way the mark leads the wordmark in the
+     nav: one lockup, mark first. Aligned to the start and not centred, because
+     the block beside it is a heading plus two paragraphs tall and centring
+     pins the tile to the middle of prose it is not part of. */
+  .umbrella { display: flex; gap: 26px; align-items: flex-start; }
+  /* A flex item defaults to `min-width: auto`, which lets a long descriptor
+     inside the cards push this column wider than the row and take the whole
+     document with it. */
+  .umbrella-copy { min-width: 0; }
+  /* Same treatment as every other mark here, for the same reason: this artwork
+     draws its own rounded frame at the edge of the canvas, so a second radius
+     shaves the frame off and any fit other than `contain` crops it. */
+  .glabs-mark { width: 88px; height: 88px; flex: none; object-fit: contain; }
+  .umbrella h2 span { color: var(--violeeter-magenta); }
+
+  .family-links { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+  /* The same card as a port, because a link to a sibling project and a link to
+     a generated file are the same gesture on this page: a bordered block that
+     takes the accent when you point at it. One pattern, two grids. */
+  .family-link {
+    display: flex; align-items: center; gap: 13px;
+    text-decoration: none; color: inherit;
+    border: 1px solid var(--violeeter-selection); border-radius: 10px;
+    padding: 13px 15px; transition: border-color .15s;
+  }
+  .family-link:hover { border-color: var(--violeeter-magenta); }
+  .family-mark { width: 38px; height: 38px; flex: none; object-fit: contain; }
+  .family-name { font-weight: 650; font-size: 0.96rem; }
+  .family-role { display: block; font-size: 0.76rem; opacity: 0.6; margin-top: 2px; }
+
+  /* The constellation stacks on a phone.
+     A tile beside a heading, and two cards side by side, both assume a row
+     wider than 390px: side by side the descriptor gets about 110px and breaks
+     into four lines, and the pair pushes the document wider than the viewport,
+     which is the same horizontal scroll the header already had to be cured of.
+     Its own media query rather than the phone block above, and it has to be:
+     these rules and the ones they override have the same specificity, so the
+     later of the two wins, and the block above is declared before them. */
+  @media (max-width: 620px) {
+    .umbrella { display: block; }
+    .glabs-mark { margin-bottom: 16px; }
+    .family-links { grid-template-columns: 1fr; }
+  }
+
   footer { padding: 40px 0 64px; font-size: 0.88rem; opacity: 0.7;
            border-top: 1px solid var(--violeeter-selection); }
   footer a { color: inherit; }
@@ -696,6 +750,45 @@ cd violeeter/dist</pre>
     Add it to <code>EXPORTS</code>, run <code>python3 build.py</code>, open a
     pull request.
   </p>
+</section>
+
+<!-- The umbrella, and the two projects this page has not introduced.
+     Violeet already has a section of its own above; this one is not that. It
+     is the family seen from above: the same mark that sits on both products,
+     and the sibling tool, Flux, which the page has never mentioned. Every link
+     here points at a project page rather than at a repository, because what a
+     reader wants from a name they have just met is the thing, not its source. -->
+<section id="glabs">
+  <p class="eyebrow" data-i18n="glabs.eyebrow">the wider constellation</p>
+  <div class="umbrella">
+    <img class="glabs-mark only-dark" src="glabs-dark.svg" alt="[GLabs]">
+    <img class="glabs-mark only-light" src="glabs-light.svg" alt="[GLabs]">
+    <div class="umbrella-copy">
+      <h2 data-i18n="glabs.h2">Held by <span>[GLabs]</span>.</h2>
+      <p class="section-lede" data-i18n="glabs.lede">
+        [GLabs] is the umbrella that ties the family together. This page is the
+        visual language it speaks, and these are the two projects that wear it.
+      </p>
+      <div class="family-links">
+        <a class="family-link" href="https://grippado.github.io/flux/">
+          <img class="family-mark only-dark" src="flux-dark.svg" alt="">
+          <img class="family-mark only-light" src="flux-light.svg" alt="">
+          <span>
+            <span class="family-name">Flux</span>
+            <small class="family-role" data-i18n="glabs.flux_role">the workflow · direct reference ↗</small>
+          </span>
+        </a>
+        <a class="family-link" href="https://grippado.github.io/violeet/">
+          <img class="family-mark only-dark" src="violeet-dark.png" alt="">
+          <img class="family-mark only-light" src="violeet-light.png" alt="">
+          <span>
+            <span class="family-name">Violeet</span>
+            <small class="family-role" data-i18n="glabs.violeet_role">the product · direct reference ↗</small>
+          </span>
+        </a>
+      </div>
+    </div>
+  </div>
 </section>
 
 <footer data-i18n="footer">

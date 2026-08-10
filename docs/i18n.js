@@ -63,6 +63,12 @@ window.VIOLEETER_I18N = {
     "porting.lede": "A port is a function in <code>build.py</code> that takes the palette and returns a string. Nothing is written by hand, and no port re-picks a colour. Editor ports also get <code>syntax</code>, the mapping from semantic role to palette slot, which is why a string is the same green everywhere.",
     "porting.after": "Add it to <code>EXPORTS</code>, run <code>python3 build.py</code>, open a pull request.",
 
+    "glabs.eyebrow": "the wider constellation",
+    "glabs.h2": "Held by <span>[GLabs]</span>.",
+    "glabs.lede": "[GLabs] is the umbrella that ties the family together. This page is the visual language it speaks, and these are the two projects that wear it.",
+    "glabs.flux_role": "the workflow · direct reference ↗",
+    "glabs.violeet_role": "the product · direct reference ↗",
+
     "footer": "Violeeter is MIT licensed, by <a href=\"https://github.com/grippado\">grippado</a>. It is the palette <a href=\"https://grippado.github.io/violeet/\">Violeet</a> ships with. <a href=\"https://github.com/grippado/violeeter/blob/main/docs/BRAND_IDENTITY.md\">Brand identity</a>.",
 
     "viewer.dark": "Dark",
@@ -124,6 +130,12 @@ window.VIOLEETER_I18N = {
     "porting.h2": "Portando para outro lugar",
     "porting.lede": "Um port é uma função no <code>build.py</code> que recebe a paleta e devolve uma string. Nada é escrito à mão, e nenhum port reescolhe uma cor. Ports de editor recebem também o <code>syntax</code>, o mapa de papel semântico para slot da paleta, e é por isso que uma string é o mesmo verde em todo lugar.",
     "porting.after": "Adicione ao <code>EXPORTS</code>, rode <code>python3 build.py</code>, abra um pull request.",
+
+    "glabs.eyebrow": "a constelação maior",
+    "glabs.h2": "Sob o guarda-chuva da <span>[GLabs]</span>.",
+    "glabs.lede": "A [GLabs] é o guarda-chuva que conecta a família. Esta página é a linguagem visual que ela fala, e estes são os dois projetos que a vestem.",
+    "glabs.flux_role": "o fluxo de trabalho · referência direta ↗",
+    "glabs.violeet_role": "o produto · referência direta ↗",
 
     "footer": "Violeeter é licenciado sob MIT, por <a href=\"https://github.com/grippado\">grippado</a>. É a paleta que o <a href=\"https://grippado.github.io/violeet/\">Violeet</a> traz de fábrica. <a href=\"https://github.com/grippado/violeeter/blob/main/docs/BRAND_IDENTITY.md\">Identidade da marca</a>.",
 
@@ -187,6 +199,12 @@ window.VIOLEETER_I18N = {
     "porting.lede": "Un port es una función en <code>build.py</code> que recibe la paleta y devuelve un string. Nada se escribe a mano, y ningún port reelige un color. Los ports de editor reciben además <code>syntax</code>, el mapa de rol semántico a ranura de la paleta, y por eso un string es el mismo verde en todas partes.",
     "porting.after": "Añádelo a <code>EXPORTS</code>, ejecuta <code>python3 build.py</code>, abre un pull request.",
 
+    "glabs.eyebrow": "la constelación mayor",
+    "glabs.h2": "Bajo el paraguas de <span>[GLabs]</span>.",
+    "glabs.lede": "[GLabs] es el paraguas que conecta a la familia. Esta página es el lenguaje visual que habla, y estos son los dos proyectos que lo visten.",
+    "glabs.flux_role": "el flujo de trabajo · referencia directa ↗",
+    "glabs.violeet_role": "el producto · referencia directa ↗",
+
     "footer": "Violeeter tiene licencia MIT, por <a href=\"https://github.com/grippado\">grippado</a>. Es la paleta con la que viene <a href=\"https://grippado.github.io/violeet/\">Violeet</a>. <a href=\"https://github.com/grippado/violeeter/blob/main/docs/BRAND_IDENTITY.md\">Identidad de marca</a>.",
 
     "viewer.dark": "Oscuro",
@@ -248,6 +266,12 @@ window.VIOLEETER_I18N = {
     "porting.h2": "Es woandershin portieren",
     "porting.lede": "Ein Port ist eine Funktion in <code>build.py</code>, die die Palette nimmt und einen String zurückgibt. Nichts wird von Hand geschrieben, und kein Port wählt eine Farbe neu. Editor-Ports bekommen zusätzlich <code>syntax</code>, die Zuordnung von semantischer Rolle zu Palettenplatz, und darum ist ein String überall dasselbe Grün.",
     "porting.after": "Trag ihn in <code>EXPORTS</code> ein, führe <code>python3 build.py</code> aus, öffne einen Pull Request.",
+
+    "glabs.eyebrow": "die weitere Konstellation",
+    "glabs.h2": "Unter dem Dach von <span>[GLabs]</span>.",
+    "glabs.lede": "[GLabs] ist das Dach, das die Familie zusammenhält. Diese Seite ist die visuelle Sprache, die es spricht, und das sind die beiden Projekte, die sie tragen.",
+    "glabs.flux_role": "der Workflow · direkter Verweis ↗",
+    "glabs.violeet_role": "das Produkt · direkter Verweis ↗",
 
     "footer": "Violeeter steht unter MIT-Lizenz, von <a href=\"https://github.com/grippado\">grippado</a>. Es ist die Palette, die <a href=\"https://grippado.github.io/violeet/\">Violeet</a> mitbringt. <a href=\"https://github.com/grippado/violeeter/blob/main/docs/BRAND_IDENTITY.md\">Markenidentität</a>.",
 
