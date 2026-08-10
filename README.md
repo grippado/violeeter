@@ -117,6 +117,36 @@ port that re-picks colours locally is how a theme ends up subtly different in
 every editor, and it is the one thing a pull request here will be asked to
 change.
 
+## Publishing the VS Code extension
+
+`python3 build.py` writes the package; publishing only uploads it. Bump
+`version` in `violeeter.json` and rebuild — the manifest follows, and there is
+no second version to remember.
+
+[Open VSX](https://open-vsx.org) (VSCodium, Cursor, Windsurf, Gitpod). The
+token comes from open-vsx.org → Log in with GitHub → Settings → Access Tokens,
+and the namespace has to match `publisher` in the generated manifest:
+
+```sh
+python3 build.py
+cd dist/vscode-extension
+npx ovsx create-namespace grippado -p "$OVSX_PAT"   # once, ever
+npx ovsx publish -p "$OVSX_PAT"
+```
+
+The Visual Studio Marketplace, which needs an Azure DevOps organisation and a
+personal access token scoped to *Marketplace → Manage*, issued for **all
+accessible organisations**:
+
+```sh
+cd dist/vscode-extension
+npx @vscode/vsce publish -p "$VSCE_PAT"
+```
+
+`npx @vscode/vsce package` writes a `.vsix` without publishing anything, which
+is also how you install the theme on a machine without either registry:
+`code --install-extension violeeter-<version>.vsix`.
+
 ## Licence
 
 MIT. Take it, port it, change it.
