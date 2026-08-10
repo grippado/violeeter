@@ -908,8 +908,22 @@ def obsidian(data: dict, syntax: dict) -> str:
             ("--text-error", c(v, "error")),
             ("--text-success", c(v, "added")),
             ("--text-warning", c(v, "warning")),
+            # Selection and highlight are two different backgrounds and have to
+            # stay two different colours. They were both `selection` at first,
+            # which meant selecting a `==marked==` phrase produced no visible
+            # change at all: the reader lost the selection feedback on exactly
+            # the text they had flagged as worth finding again.
+            #
+            # Nothing already in the palette could take the second job. Every
+            # candidate is violet, so the two would differ in luminance at best,
+            # and `surfaceRaised` is white in the light variant, which is the
+            # trap documented above. So `marker` was added, and it is the one
+            # surface in `ui` that leaves the violet family on purpose: amber
+            # against violet reads as a different thing at a glance, not as the
+            # same thing a shade off. Measured on `--text-normal`: 6.15 dark,
+            # 12.27 light, and 1.30 / 1.16 against `selection`.
             ("--text-selection", v["selection"]),
-            ("--text-highlight-bg", v["selection"]),
+            ("--text-highlight-bg", ui["marker"]),
             ("--caret-color", v["cursor"]),
             ("--icon-color", ui["gutterActive"]),
             ("--icon-color-hover", fg),
