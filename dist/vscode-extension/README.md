@@ -19,8 +19,9 @@ large share of terminal programs.
 
 ## The same theme everywhere else
 
-This extension is one port of a palette that also ships for Neovim, Zed, iTerm2,
-Alacritty, Kitty, Ghostty, WezTerm, Windows Terminal, btop, CSS and Tailwind.
+This extension is one port of a palette that also ships for Neovim, Zed,
+Terminal.app, iTerm2, Alacritty, Kitty, Ghostty, WezTerm, Windows Terminal,
+btop, CSS and Tailwind.
 Every port resolves the same role-to-slot mapping, so a string is the same green
 in your editor and in the terminal beside it.
 
