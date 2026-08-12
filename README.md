@@ -33,6 +33,7 @@ cd violeeter/dist
 | **VS Code** | [Marketplace](https://marketplace.visualstudio.com/items?itemName=grippado.violeeter) | install `grippado.violeeter`, or build the `.vsix` from `dist/vscode-extension/` |
 | **Neovim** | `violeeter-{dark,light}.nvim.lua` | drop in `~/.config/nvim/colors/violeeter-dark.lua`, then `:colorscheme violeeter-dark` |
 | **Zed** | `violeeter-{dark,light}.zed.json` | copy into `~/.config/zed/themes/` |
+| **Terminal.app** | `violeeter-{dark,light}.terminal` | double-click, then Settings → Profiles → select it → Default |
 | **iTerm2** | `violeeter-{dark,light}.itermcolors` | double-click, then Settings → Profiles → Colors → Presets |
 | **Alacritty** | `violeeter-{dark,light}.toml` | `import` it from `alacritty.toml` |
 | **Kitty** | `violeeter-{dark,light}.conf` | `include violeeter-dark.conf` in `kitty.conf` |

@@ -835,6 +835,11 @@ cd violeeter/dist</pre>
     ["VS Code (file)",   "violeeter-{v}.vscode.json"],
     ["Neovim",           "violeeter-{v}.nvim.lua"],
     ["Zed",              "violeeter-{v}.zed.json"],
+    // Terminal.app is missing on purpose. Its `.terminal` is a plist of
+    // archived `NSColor`s, so the viewer would show forty-two base64 blobs and
+    // no colour, and "copy" means nothing for a file you install by
+    // double-clicking it. Same reason `dist/vscode-extension/` is not served
+    // here: this pane is for files you read.
     ["iTerm2",           "violeeter-{v}.itermcolors"],
     ["Alacritty",        "violeeter-{v}.toml"],
     ["Kitty",            "violeeter-{v}.conf"],

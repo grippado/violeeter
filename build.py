@@ -17,6 +17,7 @@ from __future__ import annotations
 
 import json
 import pathlib
+import plistlib
 import sys
 
 ROOT = pathlib.Path(__file__).parent
@@ -104,6 +105,95 @@ def iterm(v: dict) -> str:
         '"http://www.apple.com/DTDs/PropertyList-1.0.dtd">\n'
         '<plist version="1.0">\n<dict>\n' + body + "</dict>\n</plist>\n"
     )
+
+
+def apple_terminal(v: dict) -> str:
+    """Terminal.app stores colours as archived `NSColor`s, not as hex.
+
+    Every other terminal in here takes a string. This one takes a keyed archive
+    per colour, embedded as a `<data>` blob inside the profile plist — so the
+    port is mostly the job of writing `NSKeyedArchiver` by hand, which plistlib
+    can do because it understands `UID`.
+
+    The one decision worth defending is `NSColorSpace`. It is an integer and the
+    two plausible values render differently:
+
+      1 — calibrated RGB, which is gamma 1.8. Measured, not assumed: the profile
+          this port replaces was made by hand in the macOS colour picker, and
+          the picker wrote `#24203F` down as `NSRGB 0.1028 0.0888 0.1841`, i.e.
+          `#1A172F`. That is the whole palette arriving four shades too dark.
+      2 — device RGB, which is what Apple's own bundled profiles use for their
+          ANSI slots (verified by decoding `Clear Dark` out of
+          `com.apple.Terminal.plist`).
+
+    So this writes 2, and the palette travels the same path Terminal's built-in
+    themes travel. Ten decimal places, and the trailing NUL, are copied from
+    those same bundled profiles rather than invented.
+
+    `DynamicANSIForegroundColors` is off for the same reason it is off in
+    `Clear Dark`: it lets Terminal move an ANSI colour when it decides the
+    contrast is poor. Every colour in here already cleared AA against this
+    background under `--check`, so anything Terminal does to them can only be a
+    regression against a number we already verified.
+    """
+    def colour(h: str) -> bytes:
+        r, g, b = rgb(h)
+        components = f"{r / 255:.10f} {g / 255:.10f} {b / 255:.10f}".encode()
+        return plistlib.dumps({
+            "$archiver": "NSKeyedArchiver",
+            "$version": 100000,
+            "$top": {"root": plistlib.UID(1)},
+            "$objects": [
+                "$null",
+                {"NSColorSpace": 2, "NSRGB": components + b"\x00",
+                 "$class": plistlib.UID(2)},
+                {"$classname": "NSColor", "$classes": ["NSColor", "NSObject"]},
+            ],
+        }, fmt=plistlib.FMT_BINARY)
+
+    # A profile without a `Font` key is not merely plain — it is broken enough
+    # that `screenfetch` prints a PlistBuddy error over its own output when it
+    # goes looking for one. The name and size are Terminal's own defaults, read
+    # out of the bundled profiles; `NSfFlags` 16 is what they carry.
+    font = plistlib.dumps({
+        "$archiver": "NSKeyedArchiver",
+        "$version": 100000,
+        "$top": {"root": plistlib.UID(1)},
+        "$objects": [
+            "$null",
+            {"NSSize": 12.0, "NSfFlags": 16, "NSName": plistlib.UID(2),
+             "$class": plistlib.UID(3)},
+            "SFMonoTerminal-Regular",
+            {"$classname": "NSFont", "$classes": ["NSFont", "NSObject"]},
+        ],
+    }, fmt=plistlib.FMT_BINARY)
+
+    profile: dict = {
+        "name": v["name"],
+        "type": "Window Settings",
+        "ProfileCurrentVersion": 2.09,
+        "BackgroundColor": colour(v["background"]),
+        "TextColor": colour(v["foreground"]),
+        # Bold is a weight, not a colour. Pointing it at any other slot would
+        # put a colour on screen that `check()` never measured against this
+        # background — the palette has no "bold" entry precisely because it is
+        # not a palette decision.
+        "TextBoldColor": colour(v["foreground"]),
+        "CursorColor": colour(v["cursor"]),
+        "SelectionColor": colour(v["selection"]),
+        "Font": font,
+        "FontAntialias": True,
+        "DynamicANSIForegroundColors": False,
+    }
+    for i, name in enumerate(ORDER):
+        # `black`..`white` are ANSI<Name>Color, `brightBlack`.. are
+        # ANSIBright<Name>Color — the same sixteen slots every other port
+        # writes, spelled the way Terminal spells them.
+        slot = name[6:] if name.startswith("bright") else name
+        prefix = "ANSIBright" if name.startswith("bright") else "ANSI"
+        profile[f"{prefix}{slot[0].upper()}{slot[1:]}Color"] = colour(v["ansi"][name])
+
+    return plistlib.dumps(profile, fmt=plistlib.FMT_XML).decode()
 
 
 def alacritty(v: dict) -> str:
@@ -454,8 +544,9 @@ large share of terminal programs.
 
 ## The same theme everywhere else
 
-This extension is one port of a palette that also ships for Neovim, Zed, iTerm2,
-Alacritty, Kitty, Ghostty, WezTerm, Windows Terminal, btop, CSS and Tailwind.
+This extension is one port of a palette that also ships for Neovim, Zed,
+Terminal.app, iTerm2, Alacritty, Kitty, Ghostty, WezTerm, Windows Terminal,
+btop, CSS and Tailwind.
 Every port resolves the same role-to-slot mapping, so a string is the same green
 in your editor and in the terminal beside it.
 
@@ -1094,6 +1185,7 @@ def obsidian(data: dict, syntax: dict) -> str:
 # `obsidian`) is a function over the whole dataset called directly from
 # `main()` instead.
 EXPORTS = {
+    "terminal": apple_terminal,
     "itermcolors": iterm,
     "toml": alacritty,
     "conf": kitty,
